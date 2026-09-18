@@ -1,0 +1,25 @@
+.ollie-orb {
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 10px 2px rgba(255, 140, 107, 0.5);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ollie-orb--breathing {
+  animation: ollie-orb-breathe 3s ease-in-out infinite;
+}
+
+@keyframes ollie-orb-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}

@@ -1,0 +1,44 @@
+.landing-page {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+}
+
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.landing-hero h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.landing-hero p {
+  margin: 0;
+  max-width: 320px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.landing-actions {
+  width: 100%;
+  max-width: 280px;
+}
+
+.landing-cta {
+  width: 100%;
+  min-height: 52px;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.landing-footnote {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}

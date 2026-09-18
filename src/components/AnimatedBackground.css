@@ -1,0 +1,88 @@
+.ollie-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--bg-1);
+}
+
+.ollie-bg__gradient {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    135deg,
+    var(--bg-1) 0%,
+    var(--bg-2) 35%,
+    var(--bg-3) 65%,
+    var(--bg-4) 100%
+  );
+  background-size: 200% 200%;
+  animation: ollie-gradient-shift 12s ease-in-out infinite;
+}
+
+@keyframes ollie-gradient-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.ollie-bg__glow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.16;
+  filter: blur(60px);
+  will-change: transform;
+}
+
+.ollie-bg__glow--a {
+  width: 45vmax;
+  height: 45vmax;
+  top: -10%;
+  left: -10%;
+  animation: ollie-drift-a 18s ease-in-out infinite;
+}
+
+.ollie-bg__glow--b {
+  width: 35vmax;
+  height: 35vmax;
+  bottom: -5%;
+  right: -10%;
+  opacity: 0.12;
+  animation: ollie-drift-b 22s ease-in-out infinite;
+}
+
+.ollie-bg__glow--c {
+  width: 25vmax;
+  height: 25vmax;
+  bottom: 20%;
+  left: 10%;
+  opacity: 0.1;
+  animation: ollie-drift-a 26s ease-in-out infinite reverse;
+}
+
+@keyframes ollie-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(6%, 8%) scale(1.15);
+  }
+}
+
+@keyframes ollie-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-8%, -6%) scale(1.1);
+  }
+}
