@@ -3,7 +3,11 @@ import AnimatedBackground from './components/AnimatedBackground';
 import { isLoggedIn } from './lib/api';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
+import Home from './pages/Home';
 import Chat from './pages/Chat';
+import Settings from './pages/Settings';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import Premium from './pages/Premium';
 import PremiumSuccess from './pages/PremiumSuccess';
 
@@ -19,11 +23,29 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route
+          path="/home"
+          element={
+            <RequireAuth>
+              <Home />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/chat"
           element={
             <RequireAuth>
               <Chat />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <RequireAuth>
+              <Settings />
             </RequireAuth>
           }
         />

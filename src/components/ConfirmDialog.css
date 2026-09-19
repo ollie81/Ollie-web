@@ -1,0 +1,47 @@
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+
+.confirm-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--bg-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sheet);
+  padding: 24px 20px 12px;
+}
+
+.confirm-card__title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.confirm-card__message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.confirm-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 18px;
+}
+
+.confirm-card__accent {
+  color: var(--accent);
+}
+
+.confirm-card__destructive {
+  color: var(--danger);
+}

@@ -1,0 +1,238 @@
+.settings-page {
+  padding-top: max(16px, var(--safe-top));
+  padding-bottom: max(16px, var(--safe-bottom));
+  overflow-y: auto;
+}
+
+.settings-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.settings-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings-loading {
+  margin: auto;
+  color: var(--text-tertiary);
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 24px;
+}
+
+.settings-section-label {
+  margin: 14px 4px 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.settings-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  text-align: left;
+  color: var(--text);
+}
+
+.settings-tile--action {
+  cursor: pointer;
+}
+
+.settings-tile__icon {
+  flex-shrink: 0;
+  font-size: 17px;
+  opacity: 0.85;
+}
+
+.settings-tile__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+}
+
+.settings-tile__value {
+  flex-shrink: 0;
+  max-width: 45%;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-tile__chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: 18px;
+}
+
+.settings-tile--destructive .settings-tile__title,
+.settings-tile--destructive .settings-tile__icon {
+  color: var(--danger);
+  opacity: 1;
+}
+
+.settings-switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px;
+  display: flex;
+  justify-content: flex-start;
+  transition: background 0.15s ease;
+}
+
+.settings-switch--on {
+  background: var(--accent);
+  justify-content: flex-end;
+}
+
+.settings-switch__knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  margin-top: -2px;
+}
+
+.settings-panel--danger {
+  background: rgba(229, 57, 53, 0.08);
+  border-color: rgba(229, 57, 53, 0.3);
+}
+
+.settings-panel__hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.settings-panel__confirm-btn {
+  width: 100%;
+  min-height: 46px;
+}
+
+.settings-panel__confirm-btn--danger {
+  background: var(--danger);
+}
+
+.settings-panel__confirm-btn:disabled {
+  opacity: 0.4;
+}
+
+.frequency-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 4px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+}
+
+.frequency-option__dot {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--text-tertiary);
+}
+
+.frequency-option__dot--selected {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.frequency-option__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.frequency-option__label {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.frequency-option__badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+}
+
+.frequency-option__description {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.settings-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(24px, var(--safe-bottom));
+  transform: translateX(-50%);
+  max-width: min(90vw, 380px);
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+
+.settings-toast--error {
+  background: var(--danger);
+}

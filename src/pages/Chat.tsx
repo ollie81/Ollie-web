@@ -1,7 +1,17 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
-import { ChatMessageRow, getHistory, getUsage, logout, sendMessage } from '../lib/api';
+import {
+  ChatMessageRow,
+  chatVoice,
+  getHistory,
+  getModeStarter,
+  getUsage,
+  logout,
+  sendMessage,
+  speak,
+  VoicePremiumRequiredError,
+} from '../lib/api';
 import './Chat.css';
 
 interface Message {
@@ -30,8 +40,28 @@ function emotionalHeaderFor(text: string): string {
   return 'always listening 💡';
 }
 
+// MediaRecorder's default mimeType isn't guaranteed to produce
+// something Whisper (backend's transcription) recognizes by
+// extension -- picking one explicitly, in this priority order, and
+// naming the uploaded file to match, is the same "know the real
+// shape, don't assume" discipline this app's other integrations
+// followed. audio/webm covers Chrome/Firefox/desktop Safari;
+// audio/mp4 (aac) is what iOS Safari actually supports.
+function pickRecorderMimeType(): { mimeType?: string; ext: string } {
+  const candidates: Array<{ mimeType: string; ext: string }> = [
+    { mimeType: 'audio/webm', ext: 'webm' },
+    { mimeType: 'audio/mp4', ext: 'm4a' },
+    { mimeType: 'audio/ogg', ext: 'ogg' },
+  ];
+  for (const c of candidates) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported?.(c.mimeType)) return c;
+  }
+  return { ext: 'webm' };
+}
+
 export default function Chat() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -41,13 +71,53 @@ export default function Chat() {
   const [header, setHeader] = useState('hey there 😊');
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // ---- voice ----
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [voiceNotice, setVoiceNotice] = useState<{ text: string; upgrade?: boolean } | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const recordingExtRef = useRef('webm');
+  const streamRef = useRef<MediaStream | null>(null);
+  const playingAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Leaving the chat mid-recording or mid-playback shouldn't leave
+  // the mic hot or Ollie's voice still playing in the background.
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      playingAudioRef.current?.pause();
+    };
+  }, []);
+
   useEffect(() => {
     (async () => {
       const [history, usage] = await Promise.all([getHistory(), getUsage().catch(() => null)]);
       setMessages(history.map(rowToMessage));
       if (usage) setStreak(usage.current_streak ?? 0);
       setLoadingHistory(false);
+
+      // Arrived from a Home quick-action chip ("Plan my day", "Study
+      // together", …) -- have Ollie speak first, same as
+      // home_screen.dart's _openMode + chat_screen.dart's initialMode
+      // handling. Best-effort: a failure here just means the chat
+      // opens silently, which is still a perfectly usable screen.
+      const navState = location.state as { mode?: string } | null;
+      if (navState?.mode) {
+        setIsTyping(true);
+        try {
+          const { reply } = await getModeStarter(navState.mode);
+          setMessages((m) => [...m, { clientId: uid(), id: null, text: reply, isOllie: true }]);
+          setHeader(emotionalHeaderFor(reply));
+        } catch {
+          // silent -- see comment above
+        } finally {
+          setIsTyping(false);
+        }
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -64,7 +134,7 @@ export default function Chat() {
       const ollieMsg: Message = { clientId: uid(), id: response.message_id, text: response.reply, isOllie: true };
       setMessages((m) => [...m, ollieMsg]);
       setHeader(emotionalHeaderFor(response.reply));
-      if (typeof response.current_streak === 'number') setStreak(response.current_streak);
+      if (typeof response.streak === 'number') setStreak(response.streak);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       if (message.includes('Daily limit reached')) {
@@ -99,6 +169,93 @@ export default function Chat() {
     navigate('/auth');
   }
 
+  // ---- voice output: speaker button on an Ollie bubble ----
+  async function handleSpeak(msg: Message) {
+    if (speakingId) return;
+    setVoiceNotice(null);
+    setSpeakingId(msg.clientId);
+    try {
+      const { blob } = await speak(msg.text);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      playingAudioRef.current = audio;
+      audio.onended = () => {
+        setSpeakingId(null);
+        URL.revokeObjectURL(url);
+      };
+      audio.onerror = () => {
+        setSpeakingId(null);
+        URL.revokeObjectURL(url);
+      };
+      await audio.play();
+    } catch (err) {
+      setSpeakingId(null);
+      if (err instanceof VoicePremiumRequiredError) {
+        setVoiceNotice({ text: 'Voice replies are an Ollie Premium feature.', upgrade: true });
+      } else {
+        setVoiceNotice({ text: err instanceof Error ? err.message : 'Could not play that reply.' });
+      }
+    }
+  }
+
+  // ---- voice input: mic button in the input bar ----
+  async function startRecording() {
+    if (recording || isTyping) return;
+    setVoiceNotice(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const { mimeType, ext } = pickRecorderMimeType();
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      recordedChunksRef.current = [];
+      recordingExtRef.current = ext;
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        void handleRecordingStopped();
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+    } catch {
+      setVoiceNotice({ text: "Couldn't access your microphone. Check your browser's permissions and try again." });
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+  }
+
+  async function handleRecordingStopped() {
+    const blob = new Blob(recordedChunksRef.current, { type: mediaRecorderRef.current?.mimeType || 'audio/webm' });
+    recordedChunksRef.current = [];
+    if (blob.size === 0) return;
+
+    setLimitReached(false);
+    setIsTyping(true);
+    try {
+      const result = await chatVoice(blob, `voice.${recordingExtRef.current}`);
+      const userMsg: Message = { clientId: uid(), id: null, text: result.transcribed_text, isOllie: false };
+      const ollieMsg: Message = { clientId: uid(), id: result.message_id, text: result.reply, isOllie: true };
+      setMessages((m) => [...m, userMsg, ollieMsg]);
+      setHeader(emotionalHeaderFor(result.reply));
+      if (typeof result.streak === 'number') setStreak(result.streak);
+    } catch (err) {
+      if (err instanceof VoicePremiumRequiredError) {
+        setVoiceNotice({ text: 'Voice chat is an Ollie Premium feature.', upgrade: true });
+      } else {
+        setVoiceNotice({ text: err instanceof Error ? err.message : "Couldn't hear that. Try again." });
+      }
+    } finally {
+      setIsTyping(false);
+    }
+  }
+
   return (
     <div className="page-shell chat-page">
       <header className="chat-header">
@@ -131,6 +288,16 @@ export default function Chat() {
               {msg.isOllie && <OllieOrb size={28} />}
               <div className="bubble-col">
                 <div className={`bubble${msg.isOllie ? ' bubble--ollie' : ' bubble--user'}`}>{msg.text}</div>
+                {msg.isOllie && (
+                  <button
+                    type="button"
+                    className={`bubble-speak${speakingId === msg.clientId ? ' bubble-speak--active' : ''}`}
+                    onClick={() => handleSpeak(msg)}
+                    disabled={speakingId !== null && speakingId !== msg.clientId}
+                  >
+                    {speakingId === msg.clientId ? '◼ Playing…' : '🔊 Listen'}
+                  </button>
+                )}
                 {msg.failed && (
                   <button className="bubble-retry" onClick={() => retry(msg)}>
                     Couldn't send · Retry
@@ -161,16 +328,49 @@ export default function Chat() {
         </div>
       )}
 
+      {voiceNotice && (
+        <div className="error-banner voice-notice">
+          <span>{voiceNotice.text}</span>
+          {voiceNotice.upgrade && (
+            <Link to="/premium" className="voice-notice__link">
+              Go premium
+            </Link>
+          )}
+        </div>
+      )}
+
       <form className="chat-input-bar" onSubmit={handleSend}>
         <input
           className="field chat-input"
           type="text"
-          placeholder="Message Ollie…"
+          placeholder={recording ? 'Recording…' : 'Message Ollie…'}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          disabled={isTyping}
+          disabled={isTyping || recording}
         />
-        <button className="chat-send" type="submit" disabled={isTyping || !input.trim()} aria-label="Send">
+        <button
+          type="button"
+          className={`chat-mic${recording ? ' chat-mic--recording' : ''}`}
+          onClick={recording ? stopRecording : startRecording}
+          disabled={isTyping && !recording}
+          aria-label={recording ? 'Stop recording' : 'Record a voice message'}
+        >
+          {recording ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              />
+              <path d="M19 11a7 7 0 0 1-14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          )}
+        </button>
+        <button className="chat-send" type="submit" disabled={isTyping || recording || !input.trim()} aria-label="Send">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M4 12L20 4L14 20L11 13L4 12Z" fill="currentColor" />
           </svg>

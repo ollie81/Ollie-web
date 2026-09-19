@@ -84,7 +84,7 @@ export default function Auth() {
       if (result.needs_date_of_birth) {
         setPendingGoogleIdToken(response.credential);
       } else if (result.access_token) {
-        navigate('/chat');
+        navigate('/home');
       } else {
         setError('Google sign-in failed. Try again.');
       }
@@ -103,7 +103,7 @@ export default function Auth() {
     try {
       const result = await googleLogin(pendingGoogleIdToken, dob);
       if (result.access_token) {
-        navigate('/chat');
+        navigate('/home');
       } else {
         setError("Couldn't finish signing up. Try again.");
       }
@@ -137,7 +137,7 @@ export default function Auth() {
     try {
       if (mode === 'login') {
         await emailLogin(email, password);
-        navigate('/chat');
+        navigate('/home');
         return;
       }
 
@@ -148,7 +148,7 @@ export default function Auth() {
           setInfo(`We sent a code to ${email}`);
         } else {
           await emailSignup(email, password, otp);
-          navigate('/chat');
+          navigate('/home');
         }
         return;
       }

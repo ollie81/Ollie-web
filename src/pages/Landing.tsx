@@ -4,7 +4,7 @@ import { isLoggedIn } from '../lib/api';
 import './Landing.css';
 
 export default function Landing() {
-  if (isLoggedIn()) return <Navigate to="/chat" replace />;
+  if (isLoggedIn()) return <Navigate to="/home" replace />;
 
   return (
     <div className="page-shell landing-page">

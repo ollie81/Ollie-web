@@ -130,22 +130,31 @@ async function refreshAccessToken(): Promise<boolean> {
   }
 }
 
-export async function authRequest<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  endpoint: string,
-  body?: Record<string, unknown>,
-  timeoutMs?: number,
-): Promise<T> {
-  let response = await doAuthFetch(method, endpoint, body, timeoutMs);
-
+// Shared by every authenticated call (JSON or not): retries exactly
+// once on a 401 after a silent token refresh, same as api_service.dart's
+// _doAuthRequest. Callers pass a thunk rather than a Response so the
+// same retry dance works whether the underlying request is a plain
+// JSON fetch or a binary/multipart one (see speak/chatVoice below).
+async function withAuthRetry(makeRequest: () => Promise<Response>): Promise<Response> {
+  let response = await makeRequest();
   if (response.status === 401) {
     const refreshed = await refreshAccessToken();
     if (!refreshed) {
       clearTokens();
       throw new ApiError('Session expired. Please log in again.');
     }
-    response = await doAuthFetch(method, endpoint, body, timeoutMs);
+    response = await makeRequest();
   }
+  return response;
+}
+
+export async function authRequest<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  endpoint: string,
+  body?: Record<string, unknown>,
+  timeoutMs?: number,
+): Promise<T> {
+  const response = await withAuthRetry(() => doAuthFetch(method, endpoint, body, timeoutMs));
 
   if (response.status === 429) {
     throw new ApiError(await readErrorDetail(response, 'Daily limit reached'));
@@ -237,13 +246,19 @@ export interface ChatMessageRow {
   reply_to?: { sender: string; message: string } | null;
 }
 
+export interface ChatReply {
+  reply: string;
+  user_message_id: string;
+  message_id: string;
+  // _process_chat_message's own field name is "streak", not
+  // "current_streak" (that name belongs to /settings/usage's
+  // unrelated response) -- matching it exactly here, since reading
+  // the wrong key silently means the badge just never updates.
+  streak?: number;
+}
+
 export const sendMessage = (message: string, mode?: string | null, replyToId?: string | null) =>
-  authRequest<{
-    reply: string;
-    user_message_id: string;
-    message_id: string;
-    current_streak?: number;
-  }>('POST', '/chat', {
+  authRequest<ChatReply>('POST', '/chat', {
     message,
     history: [],
     // Dart's DateTime.timeZoneOffset.inMinutes and JS's
@@ -259,15 +274,148 @@ export const getHistory = () =>
     .then((r) => r.messages ?? [])
     .catch(() => [] as ChatMessageRow[]);
 
-export const getUsage = () =>
-  authRequest<{
-    messages_used_today: number;
-    daily_limit: number;
-    is_premium: boolean;
-    current_streak: number;
-  }>('GET', '/settings/usage');
+export interface UsageInfo {
+  messages_used_today: number;
+  daily_limit: number;
+  has_active_ad_bonus: boolean;
+  is_premium: boolean;
+  current_streak: number;
+  voice_trial_seconds_remaining: number;
+  notifications_enabled: boolean;
+  notification_frequency: 'off' | 'low' | 'normal' | 'frequent';
+  memory_enabled: boolean;
+  country: string | null;
+  region: string | null;
+  district: string | null;
+  email: string | null;
+  username: string | null;
+}
 
-// ---- billing (web-only -- Stripe; see billing.py) ----
+export const getUsage = () => authRequest<UsageInfo>('GET', '/settings/usage');
+
+// ---- journey ("Our Space" summary) ----
+
+export interface JourneyInfo {
+  stage: string;
+  stage_label: string;
+  stage_emoji: string;
+  active_days: number;
+  memory_count: number;
+  active_goals: { title: string }[];
+  completed_goals: unknown[];
+  highlights: unknown[];
+  is_premium: boolean;
+}
+
+export const getJourney = () => authRequest<JourneyInfo>('GET', '/journey/');
+
+// ---- premium status (the canonical, Play/LemonSqueezy-re-verifying
+// check) -- distinct from getUsage's simpler local is_premium flag,
+// same split as settings_screen.dart's _loadPremiumDetails. ----
+
+export interface PremiumStatus {
+  is_premium: boolean;
+  product_id: string | null;
+  expiry_time_millis: number | null;
+}
+
+export const getPremiumStatus = () => authRequest<PremiumStatus>('GET', '/premium/status');
+
+// ---- mode starters ("Do It With Me" openers) ----
+
+export const getModeStarter = (mode: string) =>
+  authRequest<{ reply: string; mode: string }>('POST', '/chat/mode-starter', {
+    mode,
+    utc_offset_minutes: -new Date().getTimezoneOffset(),
+  });
+
+// ---- settings ----
+
+export const updateNotificationFrequency = (frequency: 'off' | 'low' | 'normal' | 'frequent') =>
+  authRequest<{ success: boolean }>('PUT', '/settings/notification-frequency', { frequency });
+
+export const updateLocation = (location: { country: string | null; region: string | null; district: string | null }) =>
+  authRequest<{ success: boolean }>('PUT', '/settings/location', location);
+
+export const setMemoryEnabled = (enabled: boolean) =>
+  authRequest<{ success: boolean }>('PUT', '/settings/memory/enabled', { enabled });
+
+export const clearMemory = () => authRequest<{ success: boolean }>('DELETE', '/settings/memory');
+
+export const exportUserData = () => authRequest<Record<string, unknown>>('GET', '/settings/export-data');
+
+export const requestDeleteAccount = (confirmation: string) =>
+  authRequest<{ success: boolean; scheduled_for: string }>('POST', '/settings/delete-account', { confirmation });
+
+// ---- billing (web-only -- Lemon Squeezy; see billing.py) ----
 
 export const createCheckoutSession = (plan: 'monthly' | 'yearly') =>
   authRequest<{ checkout_url: string }>('POST', '/billing/create-checkout-session', { plan });
+
+// ---- voice ----
+//
+// Both routes below return/send binary audio or multipart form data,
+// not JSON, so they can't go through authRequest -- they share its
+// 401-retry behavior via withAuthRetry instead, and handle a 402
+// ("Voice chat requires Ollie Premium") as a distinct, recognizable
+// error so the UI can offer /premium specifically rather than a
+// generic failure message.
+
+export class VoicePremiumRequiredError extends ApiError {}
+
+function authHeaders(): HeadersInit {
+  return { Authorization: `Bearer ${getAccessToken()}` };
+}
+
+async function readAudioResponse(response: Response): Promise<{ blob: Blob; trialSecondsRemaining: number | null }> {
+  if (response.status === 402) {
+    throw new VoicePremiumRequiredError(await readErrorDetail(response, 'Voice requires Ollie Premium'));
+  }
+  if (!response.ok) {
+    throw new ApiError(await readErrorDetail(response, 'Could not get a voice reply. Try again.'));
+  }
+  const header = response.headers.get('X-Voice-Trial-Remaining-Seconds');
+  return { blob: await response.blob(), trialSecondsRemaining: header ? Number(header) : null };
+}
+
+// POST /speak -- synthesizes one line of text (typically an already-
+// received Ollie reply) as spoken audio. Voice generation is slow
+// enough that the shared REQUEST_TIMEOUT_MS would clip it.
+export async function speak(message: string): Promise<{ blob: Blob; trialSecondsRemaining: number | null }> {
+  const response = await withAuthRetry(() =>
+    timedFetch(
+      '/speak',
+      { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ message }) },
+      30_000,
+    ),
+  );
+  return readAudioResponse(response);
+}
+
+export interface VoiceChatResult extends ChatReply {
+  transcribed_text: string;
+  voice_trial_seconds_remaining?: number;
+}
+
+// POST /chat/voice -- uploads a recorded clip; the backend transcribes
+// it (Whisper) and runs the same reply pipeline as sendMessage. Given
+// a real network + Whisper + chat-model round trip, this gets the
+// upload timeout rather than the plain request one.
+export async function chatVoice(audioBlob: Blob, filename: string, mode?: string | null): Promise<VoiceChatResult> {
+  const form = new FormData();
+  form.append('audio', audioBlob, filename);
+  form.append('utc_offset_minutes', String(-new Date().getTimezoneOffset()));
+  if (mode) form.append('mode', mode);
+
+  const response = await withAuthRetry(() =>
+    timedFetch('/chat/voice', { method: 'POST', headers: authHeaders(), body: form }, 45_000),
+  );
+
+  if (response.status === 402) {
+    throw new VoicePremiumRequiredError(await readErrorDetail(response, 'Voice chat requires Ollie Premium'));
+  }
+  if (!response.ok) {
+    throw new ApiError(await readErrorDetail(response, "Couldn't hear that. Try again."));
+  }
+  return response.json();
+}
