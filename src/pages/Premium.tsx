@@ -55,7 +55,7 @@ export default function Premium() {
       <button className="btn-pill premium-cta" onClick={handleContinue} disabled={loading}>
         {loading ? 'Redirecting…' : 'Continue'}
       </button>
-      <p className="premium-footnote">Secure checkout via Stripe. Cancel anytime.</p>
+      <p className="premium-footnote">Secure checkout. Cancel anytime.</p>
     </div>
   );
 }

@@ -5,10 +5,11 @@ The web client for Ollie — same FastAPI backend the Android app uses
 and memory, no app store required. Built so iPhone users (and anyone else)
 can chat with Ollie without Apple's developer fee.
 
-MVP scope: chat, phone/email auth, and premium via Stripe (the web has no
-equivalent to Google Play Billing, which the Android app uses instead).
-Voice chat and push notifications are deferred — harder on the web,
-especially iOS Safari.
+MVP scope: chat, Google/email auth, and premium via Flutterwave (the web
+has no equivalent to Google Play Billing, which the Android app uses
+instead — and Stripe doesn't support Rwanda as a merchant country, so
+Flutterwave is the one that actually works here). Voice chat and push
+notifications are deferred — harder on the web, especially iOS Safari.
 
 ## Run locally
 
@@ -34,8 +35,11 @@ repo, no config needed beyond the framework preset (Vite). One thing to
 set after deploying:
 
 - On the backend (Railway → ollie-api-1 → Variables), set `WEB_APP_URL`
-  to this app's real deployed URL, so Stripe Checkout redirects back to
-  the right place after payment.
+  to this app's real deployed URL, so Flutterwave's hosted checkout
+  redirects back to the right place after payment.
+- Also add this app's real deployed origin to the Google OAuth client's
+  Authorized JavaScript origins in Google Cloud Console (Credentials
+  page) — otherwise Google sign-in fails with an origin mismatch.
 
 ## Design
 
