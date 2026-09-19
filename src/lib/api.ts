@@ -10,6 +10,15 @@
 
 const BASE_URL = 'https://ollie-api-1-production.up.railway.app';
 
+// Same Web-type OAuth client ID auth.py's google_login already
+// verifies ID tokens against (see auth_screen.dart's
+// _googleServerClientId) -- reused as-is, not a separate client, so
+// the backend needs no changes for web sign-in to work. Requires the
+// deployed web origin to be added to this client's "Authorized
+// JavaScript origins" in Google Cloud Console (Credentials page) --
+// otherwise Google rejects the sign-in with an origin mismatch.
+export const GOOGLE_CLIENT_ID = '431417738635-f3ipimjqmdldh0lfsf44f70irif9eoho.apps.googleusercontent.com';
+
 const REQUEST_TIMEOUT_MS = 15_000;
 
 const ACCESS_TOKEN_KEY = 'ollie_access_token';
@@ -148,34 +157,34 @@ export async function authRequest<T>(
 }
 
 // ---- auth endpoints ----
+//
+// Web skips phone/SMS auth entirely (the Android app keeps it --
+// see auth.py's /auth/signup, /auth/login, /auth/forgot, /auth/reset,
+// untouched) -- Google is a one-click flow on every device and email
+// covers everyone else, so there's no web-specific reason to also
+// carry SMS OTP's cost and friction here.
 
-export const requestSignupOtp = (phoneNumber: string) =>
-  publicRequest('POST', '/auth/signup/request-otp', { phone_number: phoneNumber });
+export interface GoogleLoginResponse {
+  success: boolean;
+  // True on a brand-new account with no birthdate yet -- collect one
+  // and call googleLogin again with it (see auth.py's google_login).
+  needs_date_of_birth?: boolean;
+  access_token?: string;
+  refresh_token?: string;
+  is_new_user?: boolean;
+  username?: string;
+}
 
-export const signup = (phoneNumber: string, password: string, otp: string, dateOfBirth?: string) =>
-  publicRequest<{ access_token: string; refresh_token: string }>('POST', '/auth/signup', {
-    phone_number: phoneNumber,
-    password,
-    otp,
+export async function googleLogin(idToken: string, dateOfBirth?: string): Promise<GoogleLoginResponse> {
+  const data = await publicRequest<GoogleLoginResponse>('POST', '/auth/google', {
+    id_token: idToken,
     ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
-  }).then(saveAndReturn);
-
-export const login = (phoneNumber: string, password: string) =>
-  publicRequest<{ access_token: string; refresh_token: string }>('POST', '/auth/login', {
-    phone_number: phoneNumber,
-    password,
-  }).then(saveAndReturn);
-
-export const forgotPassword = (phoneNumber: string) =>
-  publicRequest('POST', '/auth/forgot', { phone_number: phoneNumber });
-
-export const resetPassword = (phoneNumber: string, otp: string, newPassword: string) =>
-  publicRequest('POST', '/auth/reset', { phone_number: phoneNumber, otp, new_password: newPassword });
-
-export const checkUserExists = (phoneNumber: string) =>
-  publicRequest<{ exists: boolean }>('GET', `/auth/check/${encodeURIComponent(phoneNumber)}`)
-    .then((r) => r.exists)
-    .catch(() => false);
+  });
+  if (data.access_token && data.refresh_token) {
+    saveTokens(data.access_token, data.refresh_token);
+  }
+  return data;
+}
 
 export const emailRequestSignupOtp = (email: string) =>
   publicRequest('POST', '/auth/email/signup/request-otp', { email });
