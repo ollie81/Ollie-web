@@ -72,7 +72,12 @@ export default function Chat() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // ---- voice ----
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  // Every new Ollie reply plays automatically -- like a voice note
+  // landing on WhatsApp, not a text link you have to tap. Trial/
+  // premium gating still happens server-side (see api.ts's speak()),
+  // so a free user just sees the usual upgrade banner once their
+  // trial runs out.
+  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [voiceNotice, setVoiceNotice] = useState<{ text: string; upgrade?: boolean } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -108,8 +113,10 @@ export default function Chat() {
         setIsTyping(true);
         try {
           const { reply } = await getModeStarter(navState.mode);
-          setMessages((m) => [...m, { clientId: uid(), id: null, text: reply, isOllie: true }]);
+          const openerId = uid();
+          setMessages((m) => [...m, { clientId: openerId, id: null, text: reply, isOllie: true }]);
           setHeader(emotionalHeaderFor(reply));
+          void playReply(openerId, reply);
         } catch {
           // silent -- see comment above
         } finally {
@@ -135,6 +142,7 @@ export default function Chat() {
       setMessages((m) => [...m, ollieMsg]);
       setHeader(emotionalHeaderFor(response.reply));
       if (typeof response.streak === 'number') setStreak(response.streak);
+      void playReply(ollieMsg.clientId, ollieMsg.text);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       if (message.includes('Daily limit reached')) {
@@ -169,33 +177,38 @@ export default function Chat() {
     navigate('/auth');
   }
 
-  // ---- voice output: speaker button on an Ollie bubble ----
-  async function handleSpeak(msg: Message) {
-    if (speakingId) return;
+  // ---- voice output: every new Ollie reply plays itself, automatically ----
+  async function playReply(clientId: string, text: string) {
+    playingAudioRef.current?.pause();
     setVoiceNotice(null);
-    setSpeakingId(msg.clientId);
+    setPlayingMessageId(clientId);
     try {
-      const { blob } = await speak(msg.text);
+      const { blob } = await speak(text);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       playingAudioRef.current = audio;
       audio.onended = () => {
-        setSpeakingId(null);
+        setPlayingMessageId((id) => (id === clientId ? null : id));
         URL.revokeObjectURL(url);
       };
       audio.onerror = () => {
-        setSpeakingId(null);
+        setPlayingMessageId((id) => (id === clientId ? null : id));
         URL.revokeObjectURL(url);
       };
       await audio.play();
     } catch (err) {
-      setSpeakingId(null);
+      setPlayingMessageId((id) => (id === clientId ? null : id));
       if (err instanceof VoicePremiumRequiredError) {
         setVoiceNotice({ text: 'Voice replies are an Ollie Premium feature.', upgrade: true });
       } else {
         setVoiceNotice({ text: err instanceof Error ? err.message : 'Could not play that reply.' });
       }
     }
+  }
+
+  function stopPlaying() {
+    playingAudioRef.current?.pause();
+    setPlayingMessageId(null);
   }
 
   // ---- voice input: mic button in the input bar ----
@@ -245,6 +258,7 @@ export default function Chat() {
       setMessages((m) => [...m, userMsg, ollieMsg]);
       setHeader(emotionalHeaderFor(result.reply));
       if (typeof result.streak === 'number') setStreak(result.streak);
+      void playReply(ollieMsg.clientId, ollieMsg.text);
     } catch (err) {
       if (err instanceof VoicePremiumRequiredError) {
         setVoiceNotice({ text: 'Voice chat is an Ollie Premium feature.', upgrade: true });
@@ -288,14 +302,9 @@ export default function Chat() {
               {msg.isOllie && <OllieOrb size={28} />}
               <div className="bubble-col">
                 <div className={`bubble${msg.isOllie ? ' bubble--ollie' : ' bubble--user'}`}>{msg.text}</div>
-                {msg.isOllie && (
-                  <button
-                    type="button"
-                    className={`bubble-speak${speakingId === msg.clientId ? ' bubble-speak--active' : ''}`}
-                    onClick={() => handleSpeak(msg)}
-                    disabled={speakingId !== null && speakingId !== msg.clientId}
-                  >
-                    {speakingId === msg.clientId ? '◼ Playing…' : '🔊 Listen'}
+                {msg.isOllie && playingMessageId === msg.clientId && (
+                  <button type="button" className="bubble-speak bubble-speak--active" onClick={stopPlaying}>
+                    🔊 Speaking… · tap to stop
                   </button>
                 )}
                 {msg.failed && (
