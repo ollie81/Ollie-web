@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
 import {
+  base64ToBlob,
   ChatMessageRow,
   chatVoice,
   getHistory,
@@ -9,7 +10,6 @@ import {
   getUsage,
   logout,
   sendMessage,
-  speak,
   VoicePremiumRequiredError,
 } from '../lib/api';
 import './Chat.css';
@@ -179,33 +179,23 @@ export default function Chat() {
     navigate('/auth');
   }
 
-  // ---- voice output: every new Ollie reply plays itself, automatically ----
-  async function playReply(clientId: string, text: string) {
+  // ---- voice output: plays Ollie's spoken reply, bundled into the
+  // same /chat/voice response as the transcription+text reply (see
+  // chatVoice's includeAudio param) -- not a separate /speak call,
+  // so a full voice exchange is exactly one request. ----
+  function playBlob(clientId: string, blob: Blob) {
     playingAudioRef.current?.pause();
-    setVoiceNotice(null);
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    playingAudioRef.current = audio;
     setPlayingMessageId(clientId);
-    try {
-      const { blob } = await speak(text);
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      playingAudioRef.current = audio;
-      audio.onended = () => {
-        setPlayingMessageId((id) => (id === clientId ? null : id));
-        URL.revokeObjectURL(url);
-      };
-      audio.onerror = () => {
-        setPlayingMessageId((id) => (id === clientId ? null : id));
-        URL.revokeObjectURL(url);
-      };
-      await audio.play();
-    } catch (err) {
+    const clear = () => {
       setPlayingMessageId((id) => (id === clientId ? null : id));
-      if (err instanceof VoicePremiumRequiredError) {
-        setVoiceNotice({ text: 'Voice replies are an Ollie Premium feature.', upgrade: true });
-      } else {
-        setVoiceNotice({ text: err instanceof Error ? err.message : 'Could not play that reply.' });
-      }
-    }
+      URL.revokeObjectURL(url);
+    };
+    audio.onended = clear;
+    audio.onerror = clear;
+    audio.play().catch(clear);
   }
 
   function stopPlaying() {
@@ -252,15 +242,18 @@ export default function Chat() {
     if (blob.size === 0) return;
 
     setLimitReached(false);
+    setVoiceNotice(null);
     setIsTyping(true);
     try {
-      const result = await chatVoice(blob, `voice.${recordingExtRef.current}`);
+      const result = await chatVoice(blob, `voice.${recordingExtRef.current}`, undefined, true);
       const userMsg: Message = { clientId: uid(), id: null, text: result.transcribed_text, isOllie: false };
       const ollieMsg: Message = { clientId: uid(), id: result.message_id, text: result.reply, isOllie: true };
       setMessages((m) => [...m, userMsg, ollieMsg]);
       setHeader(emotionalHeaderFor(result.reply));
       if (typeof result.streak === 'number') setStreak(result.streak);
-      void playReply(ollieMsg.clientId, ollieMsg.text);
+      if (result.audio_base64) {
+        playBlob(ollieMsg.clientId, base64ToBlob(result.audio_base64));
+      }
     } catch (err) {
       if (err instanceof VoicePremiumRequiredError) {
         setVoiceNotice({ text: 'Voice chat is an Ollie Premium feature.', upgrade: true });

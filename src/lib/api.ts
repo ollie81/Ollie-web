@@ -395,17 +395,36 @@ export async function speak(message: string): Promise<{ blob: Blob; trialSeconds
 export interface VoiceChatResult extends ChatReply {
   transcribed_text: string;
   voice_trial_seconds_remaining?: number;
+  // Only present when chatVoice() was called with includeAudio: true
+  // -- Ollie's spoken reply, base64-encoded MP3 bytes.
+  audio_base64?: string;
+}
+
+export function base64ToBlob(base64: string, mimeType = 'audio/mpeg'): Blob {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return new Blob([bytes], { type: mimeType });
 }
 
 // POST /chat/voice -- uploads a recorded clip; the backend transcribes
 // it (Whisper) and runs the same reply pipeline as sendMessage. Given
 // a real network + Whisper + chat-model round trip, this gets the
 // upload timeout rather than the plain request one.
-export async function chatVoice(audioBlob: Blob, filename: string, mode?: string | null): Promise<VoiceChatResult> {
+//
+// includeAudio bundles Ollie's spoken reply into this same response
+// (see chat.py's /chat/voice) instead of a separate speak() call, so
+// a full voice exchange -- hearing you, speaking the reply -- is one
+// request and one daily charge, not two.
+export async function chatVoice(
+  audioBlob: Blob,
+  filename: string,
+  mode?: string | null,
+  includeAudio = false,
+): Promise<VoiceChatResult> {
   const form = new FormData();
   form.append('audio', audioBlob, filename);
   form.append('utc_offset_minutes', String(-new Date().getTimezoneOffset()));
   if (mode) form.append('mode', mode);
+  if (includeAudio) form.append('include_audio', 'true');
 
   const response = await withAuthRetry(() =>
     timedFetch('/chat/voice', { method: 'POST', headers: authHeaders(), body: form }, 45_000),
