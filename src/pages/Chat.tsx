@@ -72,11 +72,13 @@ export default function Chat() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // ---- voice ----
-  // Every new Ollie reply plays automatically -- like a voice note
-  // landing on WhatsApp, not a text link you have to tap. Trial/
-  // premium gating still happens server-side (see api.ts's speak()),
-  // so a free user just sees the usual upgrade banner once their
-  // trial runs out.
+  // Voice-out only ever follows voice-in: if you record a voice
+  // message, Ollie's reply plays back automatically, like a WhatsApp
+  // voice note landing -- not a button you tap. Typed messages stay
+  // text-only. Auto-playing on *every* reply (an earlier version of
+  // this) would call the paid TTS provider on every single message
+  // instead of only when the user actually asked for a voice
+  // exchange, which is real, avoidable cost.
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [voiceNotice, setVoiceNotice] = useState<{ text: string; upgrade?: boolean } | null>(null);
@@ -108,15 +110,14 @@ export default function Chat() {
       // home_screen.dart's _openMode + chat_screen.dart's initialMode
       // handling. Best-effort: a failure here just means the chat
       // opens silently, which is still a perfectly usable screen.
+      // Text, not voice -- see playReply's comment for why.
       const navState = location.state as { mode?: string } | null;
       if (navState?.mode) {
         setIsTyping(true);
         try {
           const { reply } = await getModeStarter(navState.mode);
-          const openerId = uid();
-          setMessages((m) => [...m, { clientId: openerId, id: null, text: reply, isOllie: true }]);
+          setMessages((m) => [...m, { clientId: uid(), id: null, text: reply, isOllie: true }]);
           setHeader(emotionalHeaderFor(reply));
-          void playReply(openerId, reply);
         } catch {
           // silent -- see comment above
         } finally {
@@ -142,7 +143,8 @@ export default function Chat() {
       setMessages((m) => [...m, ollieMsg]);
       setHeader(emotionalHeaderFor(response.reply));
       if (typeof response.streak === 'number') setStreak(response.streak);
-      void playReply(ollieMsg.clientId, ollieMsg.text);
+      // No auto-voice here -- typed messages get a text reply back,
+      // same as before. See playReply's comment.
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       if (message.includes('Daily limit reached')) {
