@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AnimatedBackground from './components/AnimatedBackground';
 import { isLoggedIn } from './lib/api';
@@ -20,6 +21,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <Analytics />
       <AnimatedBackground />
       <Routes>
         <Route path="/" element={<Landing />} />
