@@ -64,6 +64,17 @@ export default function Home() {
             🔥 {streak}
           </span>
         )}
+        <button className="home-icon-btn" onClick={() => navigate('/our-space')} aria-label="Our Space">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3Z"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+            <path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z" fill="currentColor" />
+          </svg>
+        </button>
         <button className="home-icon-btn" onClick={() => navigate('/settings')} aria-label="Settings">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.8" />
@@ -78,7 +89,7 @@ export default function Home() {
       </header>
 
       {recentCount > 0 && (
-        <div className="journey-strip">
+        <button className="journey-strip journey-strip--tappable" onClick={() => navigate('/our-space')}>
           <span className="journey-strip__emoji">{stageEmoji}</span>
           <div className="journey-strip__text">
             <span className="journey-strip__label">YOUR JOURNEY</span>
@@ -86,7 +97,10 @@ export default function Home() {
               {recentCount === 1 ? "1 thing you've accomplished recently" : `${recentCount} things you've accomplished recently`}
             </span>
           </div>
-        </div>
+          <span className="journey-strip__chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
       )}
 
       <div className="home-orb-area">

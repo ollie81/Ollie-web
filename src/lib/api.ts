@@ -295,15 +295,26 @@ export const getUsage = () => authRequest<UsageInfo>('GET', '/settings/usage');
 
 // ---- journey ("Our Space" summary) ----
 
+export interface JourneyGoal {
+  id: string;
+  title: string;
+}
+
+export interface JourneyHighlight {
+  id: string;
+  memory_text: string;
+  category: 'accomplishment' | 'struggle' | 'person' | 'event' | 'promise' | string;
+}
+
 export interface JourneyInfo {
   stage: string;
   stage_label: string;
   stage_emoji: string;
   active_days: number;
   memory_count: number;
-  active_goals: { title: string }[];
-  completed_goals: unknown[];
-  highlights: unknown[];
+  active_goals: JourneyGoal[];
+  completed_goals: JourneyGoal[];
+  highlights: JourneyHighlight[];
   is_premium: boolean;
 }
 

@@ -1,0 +1,117 @@
+.ourspace-page {
+  padding-top: max(16px, var(--safe-top));
+  padding-bottom: max(24px, var(--safe-bottom));
+  overflow-y: auto;
+}
+
+.ourspace-error {
+  margin: auto;
+  text-align: center;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ourspace-stage-hero {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: var(--radius-sheet);
+  background: linear-gradient(135deg, rgba(255, 140, 107, 0.16), rgba(255, 140, 107, 0.04));
+  border: 1px solid var(--hairline);
+  margin-bottom: 20px;
+}
+
+.ourspace-stage-emoji {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.ourspace-stage-hero h2 {
+  margin: 10px 0 6px;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.ourspace-stage-hero p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.ourspace-empty {
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ourspace-empty-icon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.ourspace-empty h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.ourspace-empty p {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ourspace-section {
+  margin-bottom: 16px;
+}
+
+.ourspace-section-label {
+  margin: 0 4px 10px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.ourspace-tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  margin-bottom: 8px;
+}
+
+.ourspace-tile__icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  opacity: 0.85;
+  line-height: 1.3;
+}
+
+.ourspace-tile__text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ourspace-tile__text--done {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  text-decoration-color: var(--hairline);
+}
+
+.ourspace-tile--highlight .ourspace-tile__text {
+  line-height: 1.45;
+}

@@ -182,6 +182,18 @@ export default function Landing() {
               </div>
               <p>If something you say sounds like a crisis, Ollie responds with care and a real way to get help — without ever breaking the conversation.</p>
             </div>
+
+            <div className="landing-proof-card">
+              <h3>It speaks your language</h3>
+              <div className="landing-proof-visual">
+                <span className="landing-chip">Kinyarwanda</span>
+                <span className="landing-chip">English</span>
+                <span className="landing-chip">Français</span>
+                <span className="landing-chip">Kiswahili</span>
+                <span className="landing-chip">+ more</span>
+              </div>
+              <p>Type in whatever language feels natural — Ollie replies in that same language. No switching to English first.</p>
+            </div>
           </div>
         </section>
 

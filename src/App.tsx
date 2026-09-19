@@ -5,6 +5,7 @@ import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
 import Chat from './pages/Chat';
+import OurSpace from './pages/OurSpace';
 import Settings from './pages/Settings';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -38,6 +39,14 @@ export default function App() {
           element={
             <RequireAuth>
               <Chat />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/our-space"
+          element={
+            <RequireAuth>
+              <OurSpace />
             </RequireAuth>
           }
         />
