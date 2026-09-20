@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "Google से साइन-इन विफल हुआ। फिर से कोशिश करें।",
-    "signupIncomplete": "साइन अप पूरा नहीं हो सका। फिर से कोशिश करें।",
     "somethingWrong": "कुछ गड़बड़ हुई। फिर से कोशिश करें।"
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "आपको फिर देखकर अच्छा लगा",
-    "subtitleOneMoreThing": "बस एक और बात",
     "tabGoogle": "Google",
     "tabEmail": "ईमेल",
     "signInMethod": "साइन इन का तरीका",
-    "dobHint": "आपका खाता पूरा करने के लिए Ollie को आपकी जन्मतिथि चाहिए।",
     "pleaseWait": "कृपया प्रतीक्षा करें…",
     "checkingGoogle": "Google साइन-इन की जांच हो रही है…",
-    "continue": "जारी रखें",
     "googleUnavailable": "Google से साइन-इन लोड नहीं हुआ — अपना कनेक्शन जांचें, या ईमेल टैब का उपयोग करें।",
     "signingIn": "साइन इन हो रहा है…",
     "emailPlaceholder": "aap@example.com",

@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "Kuingia kwa Google kumeshindikana. Jaribu tena.",
-    "signupIncomplete": "Imeshindwa kukamilisha usajili. Jaribu tena.",
     "somethingWrong": "Hitilafu imetokea. Jaribu tena."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Tumefurahi kukuona tena",
-    "subtitleOneMoreThing": "Jambo moja zaidi",
     "tabGoogle": "Google",
     "tabEmail": "Barua pepe",
     "signInMethod": "Njia ya kuingia",
-    "dobHint": "Ollie anahitaji tarehe yako ya kuzaliwa ili kukamilisha akaunti yako.",
     "pleaseWait": "Tafadhali subiri…",
     "checkingGoogle": "Inakagua kuingia kwa Google…",
-    "continue": "Endelea",
     "googleUnavailable": "Kuingia kwa Google hakukupakia — angalia muunganisho wako, au tumia kichupo cha Barua pepe.",
     "signingIn": "Inaingia…",
     "emailPlaceholder": "wewe@mfano.com",

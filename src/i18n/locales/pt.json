@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "O login com Google falhou. Tente novamente.",
-    "signupIncomplete": "Não foi possível concluir o cadastro. Tente novamente.",
     "somethingWrong": "Algo deu errado. Tente novamente."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Que bom te ver de novo",
-    "subtitleOneMoreThing": "Só mais uma coisa",
     "tabGoogle": "Google",
     "tabEmail": "Email",
     "signInMethod": "Método de login",
-    "dobHint": "O Ollie precisa da sua data de nascimento para terminar de criar sua conta.",
     "pleaseWait": "Aguarde…",
     "checkingGoogle": "Verificando o login do Google…",
-    "continue": "Continuar",
     "googleUnavailable": "O login com Google não carregou — verifique sua conexão ou use a aba Email.",
     "signingIn": "Entrando…",
     "emailPlaceholder": "voce@exemplo.com",

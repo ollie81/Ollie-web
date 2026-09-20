@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "La connexion Google a échoué. Réessaie.",
-    "signupIncomplete": "Impossible de terminer l'inscription. Réessaie.",
     "somethingWrong": "Une erreur s'est produite. Réessaie."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Ravi de te revoir",
-    "subtitleOneMoreThing": "Encore une chose",
     "tabGoogle": "Google",
     "tabEmail": "Email",
     "signInMethod": "Méthode de connexion",
-    "dobHint": "Ollie a besoin de ta date de naissance pour finaliser ton compte.",
     "pleaseWait": "Veuillez patienter…",
     "checkingGoogle": "Vérification de la connexion Google…",
-    "continue": "Continuer",
     "googleUnavailable": "La connexion Google n'a pas pu se charger — vérifie ta connexion, ou utilise l'onglet Email.",
     "signingIn": "Connexion…",
     "emailPlaceholder": "toi@exemple.com",

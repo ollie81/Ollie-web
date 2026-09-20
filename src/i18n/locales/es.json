@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "El inicio de sesión con Google falló. Inténtalo de nuevo.",
-    "signupIncomplete": "No se pudo completar el registro. Inténtalo de nuevo.",
     "somethingWrong": "Algo salió mal. Inténtalo de nuevo."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Qué bueno verte de nuevo",
-    "subtitleOneMoreThing": "Una cosa más",
     "tabGoogle": "Google",
     "tabEmail": "Correo",
     "signInMethod": "Método de inicio de sesión",
-    "dobHint": "Ollie necesita tu fecha de nacimiento para terminar de configurar tu cuenta.",
     "pleaseWait": "Espera un momento…",
     "checkingGoogle": "Comprobando el inicio de sesión con Google…",
-    "continue": "Continuar",
     "googleUnavailable": "El inicio de sesión con Google no cargó — revisa tu conexión, o usa la pestaña de Correo.",
     "signingIn": "Iniciando sesión…",
     "emailPlaceholder": "tu@ejemplo.com",

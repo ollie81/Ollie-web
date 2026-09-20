@@ -175,19 +175,15 @@ export async function authRequest<T>(
 
 export interface GoogleLoginResponse {
   success: boolean;
-  // True on a brand-new account with no birthdate yet -- collect one
-  // and call googleLogin again with it (see auth.py's google_login).
-  needs_date_of_birth?: boolean;
   access_token?: string;
   refresh_token?: string;
   is_new_user?: boolean;
   username?: string;
 }
 
-export async function googleLogin(idToken: string, dateOfBirth?: string): Promise<GoogleLoginResponse> {
+export async function googleLogin(idToken: string): Promise<GoogleLoginResponse> {
   const data = await publicRequest<GoogleLoginResponse>('POST', '/auth/google', {
     id_token: idToken,
-    ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
   });
   if (data.access_token && data.refresh_token) {
     saveTokens(data.access_token, data.refresh_token);

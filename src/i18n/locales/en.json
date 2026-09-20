@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "Google sign-in failed. Try again.",
-    "signupIncomplete": "Couldn't finish signing up. Try again.",
     "somethingWrong": "Something went wrong. Try again."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Good to see you again",
-    "subtitleOneMoreThing": "One more thing",
     "tabGoogle": "Google",
     "tabEmail": "Email",
     "signInMethod": "Sign in method",
-    "dobHint": "Ollie needs your birthdate to finish setting up your account.",
     "pleaseWait": "Please wait…",
     "checkingGoogle": "Checking Google sign-in…",
-    "continue": "Continue",
     "googleUnavailable": "Google sign-in didn't load — check your connection, or use the Email tab instead.",
     "signingIn": "Signing in…",
     "emailPlaceholder": "you@example.com",

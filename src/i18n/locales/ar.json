@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "فشل تسجيل الدخول عبر Google. حاول مرة أخرى.",
-    "signupIncomplete": "تعذّر إكمال التسجيل. حاول مرة أخرى.",
     "somethingWrong": "حدث خطأ ما. حاول مرة أخرى."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "سعداء برؤيتك مجددًا",
-    "subtitleOneMoreThing": "بقي أمر واحد",
     "tabGoogle": "Google",
     "tabEmail": "البريد الإلكتروني",
     "signInMethod": "طريقة تسجيل الدخول",
-    "dobHint": "يحتاج Ollie إلى تاريخ ميلادك لإكمال إعداد حسابك.",
     "pleaseWait": "يرجى الانتظار…",
     "checkingGoogle": "جارٍ التحقق من تسجيل الدخول عبر Google…",
-    "continue": "متابعة",
     "googleUnavailable": "لم يتم تحميل تسجيل الدخول عبر Google — تحقق من اتصالك، أو استخدم تبويب البريد الإلكتروني.",
     "signingIn": "جارٍ تسجيل الدخول…",
     "emailPlaceholder": "anta@example.com",

@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "Google سائن ان ناکام ہو گیا۔ دوبارہ کوشش کریں۔",
-    "signupIncomplete": "سائن اپ مکمل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
     "somethingWrong": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔"
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "آپ کو دوبارہ دیکھ کر اچھا لگا",
-    "subtitleOneMoreThing": "بس ایک اور بات",
     "tabGoogle": "Google",
     "tabEmail": "ای میل",
     "signInMethod": "سائن اِن کا طریقہ",
-    "dobHint": "آپ کا اکاؤنٹ مکمل کرنے کے لیے Ollie کو آپ کی تاریخ پیدائش درکار ہے۔",
     "pleaseWait": "براہ کرم انتظار کریں…",
     "checkingGoogle": "گوگل سائن اِن چیک ہو رہا ہے…",
-    "continue": "جاری رکھیں",
     "googleUnavailable": "Google سائن اِن لوڈ نہیں ہوا — اپنا کنکشن چیک کریں، یا ای میل ٹیب استعمال کریں۔",
     "signingIn": "سائن اِن ہو رہا ہے…",
     "emailPlaceholder": "aap@example.com",

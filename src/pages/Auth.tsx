@@ -30,14 +30,6 @@ export default function Auth() {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  // Google-only: set once a brand-new account needs a birthdate
-  // before auth.py's google_login will actually create it (see
-  // needs_date_of_birth in api.ts's GoogleLoginResponse). The id
-  // token itself can't be re-requested without restarting the whole
-  // Google flow, so it's held here to retry with once dob is filled.
-  const [pendingGoogleIdToken, setPendingGoogleIdToken] = useState<string | null>(null);
-  const [dob, setDob] = useState('');
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -55,7 +47,7 @@ export default function Auth() {
   const [googleButtonReady, setGoogleButtonReady] = useState(false);
 
   useEffect(() => {
-    if (method !== 'google' || pendingGoogleIdToken) return;
+    if (method !== 'google') return;
     let cancelled = false;
     const deadline = Date.now() + 5000;
     setGoogleUnavailable(false);
@@ -85,41 +77,20 @@ export default function Auth() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, pendingGoogleIdToken]);
+  }, [method]);
 
   async function handleGoogleCredential(response: { credential: string }) {
     setError(null);
     setLoading(true);
     try {
       const result = await googleLogin(response.credential);
-      if (result.needs_date_of_birth) {
-        setPendingGoogleIdToken(response.credential);
-      } else if (result.access_token) {
+      if (result.access_token) {
         navigate('/home');
       } else {
         setError(t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDobSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!pendingGoogleIdToken || !dob) return;
-    setError(null);
-    setLoading(true);
-    try {
-      const result = await googleLogin(pendingGoogleIdToken, dob);
-      if (result.access_token) {
-        navigate('/home');
-      } else {
-        setError(t('errors.signupIncomplete', "Couldn't finish signing up. Try again."));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.somethingWrong', 'Something went wrong. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -136,7 +107,6 @@ export default function Auth() {
 
   function switchMethod(next: Method) {
     setMethod(next);
-    setPendingGoogleIdToken(null);
     setError(null);
     setInfo(null);
   }
@@ -186,7 +156,7 @@ export default function Auth() {
       <div className="auth-hero">
         <OllieOrb size={56} breathing />
         <h1>Ollie</h1>
-        <p>{method === 'google' && pendingGoogleIdToken ? t('auth.subtitleOneMoreThing') : t('auth.subtitleReturning')}</p>
+        <p>{t('auth.subtitleReturning')}</p>
       </div>
 
       <div className="auth-tabs" role="tablist" aria-label={t('auth.signInMethod')}>
@@ -214,22 +184,7 @@ export default function Auth() {
       {info && !error && <div className="info-banner">{info}</div>}
 
       {method === 'google' ? (
-        pendingGoogleIdToken ? (
-          <form className="auth-form" onSubmit={handleDobSubmit}>
-            <p className="auth-dob-hint">{t('auth.dobHint')}</p>
-            <input
-              className="field"
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              max={new Date().toISOString().slice(0, 10)}
-              required
-            />
-            <button className="btn-pill auth-submit" type="submit" disabled={loading}>
-              {loading ? t('auth.pleaseWait') : t('auth.continue')}
-            </button>
-          </form>
-        ) : googleUnavailable ? (
+        googleUnavailable ? (
           <div className="google-button-wrap">
             <p className="auth-dob-hint">{t('auth.googleUnavailable')}</p>
           </div>

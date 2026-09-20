@@ -1,7 +1,6 @@
 {
   "errors": {
     "googleSignInFailed": "Kwinjira na Google ntibyakunze. Ongera ugerageze.",
-    "signupIncomplete": "Ntibyashobotse kurangiza kwiyandikisha. Ongera ugerageze.",
     "somethingWrong": "Hari ikitagenze neza. Ongera ugerageze."
   },
   "common": {
@@ -15,14 +14,11 @@
   },
   "auth": {
     "subtitleReturning": "Twishimiye kukubona ukundi",
-    "subtitleOneMoreThing": "Hasigaye ikintu kimwe",
     "tabGoogle": "Google",
     "tabEmail": "Email",
     "signInMethod": "Uburyo bwo kwinjira",
-    "dobHint": "Ollie akeneye itariki y'amavuko yawe kugira ngo arangize gushyiraho konti yawe.",
     "pleaseWait": "Tegereza…",
     "checkingGoogle": "Kugenzura kwinjira kwa Google…",
-    "continue": "Komeza",
     "googleUnavailable": "Kwinjira na Google ntibyakunze — reba niba ufite interineti, cyangwa ukoreshe Email.",
     "signingIn": "Kwinjira…",
     "emailPlaceholder": "wowe@urugero.com",
