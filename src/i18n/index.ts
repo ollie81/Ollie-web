@@ -10,12 +10,18 @@ import ur from './locales/ur.json';
 import ar from './locales/ar.json';
 import fr from './locales/fr.json';
 import sw from './locales/sw.json';
+import es from './locales/es.json';
+import zh from './locales/zh.json';
 
-// Chosen from this app's own Vercel Analytics country breakdown, not
-// a generic "top world languages" guess -- each one maps to a real,
-// substantial slice of ourollie.space's actual visitors (Angola ->
-// pt, Rwanda -> rw, India -> hi, Pakistan -> ur, Egypt/Saudi Arabia
-// -> ar, France -> fr, Kenya -> sw).
+// The first eight were chosen from this app's own Vercel Analytics
+// country breakdown, not a generic "top world languages" guess --
+// each one maps to a real, substantial slice of ourollie.space's
+// actual visitors (Angola -> pt, Rwanda -> rw, India -> hi, Pakistan
+// -> ur, Egypt/Saudi Arabia -> ar, France -> fr, Kenya -> sw).
+// Spanish and Chinese were added on top of that by direct request,
+// not from analytics -- the single Rwanda data point is plausibly
+// just the app's own developer testing it, so it isn't being treated
+// as strong evidence either way.
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'pt', label: 'Português' },
@@ -25,6 +31,8 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'ar', label: 'العربية' },
   { code: 'fr', label: 'Français' },
   { code: 'sw', label: 'Kiswahili' },
+  { code: 'es', label: 'Español' },
+  { code: 'zh', label: '中文' },
 ] as const;
 
 export type LanguageCode = (typeof SUPPORTED_LANGUAGES)[number]['code'];
@@ -45,6 +53,8 @@ i18n
       ar: { translation: ar },
       fr: { translation: fr },
       sw: { translation: sw },
+      es: { translation: es },
+      zh: { translation: zh },
     },
     fallbackLng: 'en',
     supportedLngs: SUPPORTED_LANGUAGES.map((l) => l.code),
