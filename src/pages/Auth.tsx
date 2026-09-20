@@ -20,7 +20,12 @@ type Step = 'form' | 'otp';
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [method, setMethod] = useState<Method>('google');
+  // Google-only for now -- the email/password tab is temporarily
+  // hidden (not removed: see switchMethod/the auth-tabs block in
+  // git history to bring it back) while its account-identity bugs
+  // get sorted out. `method` stays a plain constant, not state,
+  // since nothing can change it while the tabs are gone.
+  const method: Method = 'google';
   const [mode, setMode] = useState<Mode>('login');
   const [step, setStep] = useState<Step>('form');
   const googleButtonRef = useRef<HTMLDivElement>(null);
@@ -105,12 +110,6 @@ export default function Auth() {
     setNewPassword('');
   }
 
-  function switchMethod(next: Method) {
-    setMethod(next);
-    setError(null);
-    setInfo(null);
-  }
-
   async function handleEmailSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -157,27 +156,6 @@ export default function Auth() {
         <OllieOrb size={56} breathing />
         <h1>Ollie</h1>
         <p>{t('auth.subtitleReturning')}</p>
-      </div>
-
-      <div className="auth-tabs" role="tablist" aria-label={t('auth.signInMethod')}>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={method === 'google'}
-          className={`auth-tab${method === 'google' ? ' auth-tab--active' : ''}`}
-          onClick={() => switchMethod('google')}
-        >
-          {t('auth.tabGoogle')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={method === 'email'}
-          className={`auth-tab${method === 'email' ? ' auth-tab--active' : ''}`}
-          onClick={() => switchMethod('email')}
-        >
-          {t('auth.tabEmail')}
-        </button>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
