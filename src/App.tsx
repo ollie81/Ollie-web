@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import i18n from 'i18next';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AnimatedBackground from './components/AnimatedBackground';
 import { isLoggedIn } from './lib/api';
@@ -18,7 +20,28 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Arabic and Urdu are RTL scripts -- i18n.dir() already knows this
+// per language, so the whole document just needs to follow it
+// (CSS's logical "row" direction mirrors automatically from this;
+// only a few explicit left/right styles don't, which is an accepted
+// gap for this first localization pass).
+function useDocumentDirection() {
+  useEffect(() => {
+    const applyDirection = (lng: string) => {
+      document.documentElement.dir = i18n.dir(lng);
+      document.documentElement.lang = lng;
+    };
+    applyDirection(i18n.language);
+    i18n.on('languageChanged', applyDirection);
+    return () => {
+      i18n.off('languageChanged', applyDirection);
+    };
+  }, []);
+}
+
 export default function App() {
+  useDocumentDirection();
+
   return (
     <BrowserRouter>
       <Analytics />

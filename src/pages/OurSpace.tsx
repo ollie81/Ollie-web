@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getJourney, JourneyInfo } from '../lib/api';
 import './OurSpace.css';
@@ -8,6 +9,8 @@ import './OurSpace.css';
 // active + memory/accomplishment depth, see relationship.py), never
 // a streak -- that's deliberate, per relationship.py's own comment:
 // this can't be rushed by messaging a lot in one sitting.
+// stage_label comes straight from the backend and isn't localized
+// here (same scoping as other backend-sourced strings in this app).
 
 const CATEGORY_ICON: Record<string, string> = {
   accomplishment: '🏆',
@@ -18,6 +21,7 @@ const CATEGORY_ICON: Record<string, string> = {
 };
 
 export default function OurSpace() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [journey, setJourney] = useState<JourneyInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,19 +51,19 @@ export default function OurSpace() {
   return (
     <div className="page-shell ourspace-page">
       <header className="settings-header">
-        <button className="settings-back" onClick={() => navigate('/home')} aria-label="Back">
+        <button className="settings-back" onClick={() => navigate('/home')} aria-label={t('common.back')}>
           ←
         </button>
-        <h1>Our Space</h1>
+        <h1>{t('ourSpace.title')}</h1>
       </header>
 
       {loading ? (
-        <div className="settings-loading">Loading…</div>
+        <div className="settings-loading">{t('common.loading')}</div>
       ) : error ? (
         <div className="ourspace-error">
-          <p>Could not load your journey, try again</p>
+          <p>{t('ourSpace.loadError')}</p>
           <button className="btn-text" onClick={load}>
-            Retry
+            {t('common.retry')}
           </button>
         </div>
       ) : (
@@ -69,10 +73,8 @@ export default function OurSpace() {
             <h2>{journey?.stage_label ?? 'New'}</h2>
             <p>
               {activeDays === 0
-                ? 'Your story with Ollie is just getting started'
-                : `${activeDays} ${activeDays === 1 ? 'day' : 'days'} together · ${memoryCount} ${
-                    memoryCount === 1 ? 'thing' : 'things'
-                  } Ollie remembers`}
+                ? t('ourSpace.storyStarting')
+                : t('ourSpace.daysTogether', { count: activeDays, memories: memoryCount })}
             </p>
           </div>
 
@@ -81,14 +83,14 @@ export default function OurSpace() {
               <span className="ourspace-empty-icon" aria-hidden="true">
                 ✨
               </span>
-              <h3>Nothing here yet</h3>
-              <p>Keep talking to Ollie — your memories, goals, and milestones together will start showing up here.</p>
+              <h3>{t('ourSpace.nothingYet')}</h3>
+              <p>{t('ourSpace.nothingYetDescription')}</p>
             </div>
           ) : (
             <>
               {activeGoals.length > 0 && (
                 <section className="ourspace-section">
-                  <div className="ourspace-section-label">Working on together</div>
+                  <div className="ourspace-section-label">{t('ourSpace.workingTogether')}</div>
                   {activeGoals.map((g) => (
                     <div key={g.id} className="ourspace-tile">
                       <span className="ourspace-tile__icon" aria-hidden="true">
@@ -102,7 +104,7 @@ export default function OurSpace() {
 
               {completedGoals.length > 0 && (
                 <section className="ourspace-section">
-                  <div className="ourspace-section-label">What you've accomplished</div>
+                  <div className="ourspace-section-label">{t('ourSpace.accomplished')}</div>
                   {completedGoals.map((g) => (
                     <div key={g.id} className="ourspace-tile">
                       <span className="ourspace-tile__icon" aria-hidden="true">
@@ -116,7 +118,7 @@ export default function OurSpace() {
 
               {highlights.length > 0 && (
                 <section className="ourspace-section">
-                  <div className="ourspace-section-label">Moments</div>
+                  <div className="ourspace-section-label">{t('ourSpace.moments')}</div>
                   {highlights.map((h) => (
                     <div key={h.id} className="ourspace-tile ourspace-tile--highlight">
                       <span className="ourspace-tile__icon" aria-hidden="true">

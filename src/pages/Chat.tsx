@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
 import {
@@ -27,18 +28,6 @@ function rowToMessage(row: ChatMessageRow): Message {
   return { clientId: row.id ?? uid(), id: row.id, text: row.message, isOllie: row.sender === 'ollie' };
 }
 
-// Same lightweight keyword read as chat_screen.dart's
-// _updateEmotionalHeader -- purely cosmetic, but it's one of the
-// small touches that makes the chat feel alive rather than static.
-function emotionalHeaderFor(text: string): string {
-  const lower = text.toLowerCase();
-  if (!text) return 'hey there 😊';
-  if (lower.includes('sad') || lower.includes('bad') || lower.includes('cry')) return "i'm here 🤗";
-  if (lower.includes('happy') || lower.includes('good') || lower.includes('great')) return "let's gooo 🎉";
-  if (lower.includes('love') || lower.includes('crush')) return 'awww 💕';
-  return 'always listening 💡';
-}
-
 // MediaRecorder's default mimeType isn't guaranteed to produce
 // something Whisper (backend's transcription) recognizes by
 // extension -- picking one explicitly, in this priority order, and
@@ -59,6 +48,7 @@ function pickRecorderMimeType(): { mimeType?: string; ext: string } {
 }
 
 export default function Chat() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -67,8 +57,23 @@ export default function Chat() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [streak, setStreak] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
-  const [header, setHeader] = useState('hey there 😊');
+  const [header, setHeader] = useState(t('chat.moodDefault'));
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Same lightweight keyword read as chat_screen.dart's
+  // _updateEmotionalHeader -- purely cosmetic, but it's one of the
+  // small touches that makes the chat feel alive rather than static.
+  // English-only keyword matching: harmless in any language (a reply
+  // in another language just always falls through to the default
+  // mood line, same as a neutral English reply would).
+  function emotionalHeaderFor(text: string): string {
+    const lower = text.toLowerCase();
+    if (!text) return t('chat.moodDefault');
+    if (lower.includes('sad') || lower.includes('bad') || lower.includes('cry')) return t('chat.moodSad');
+    if (lower.includes('happy') || lower.includes('good') || lower.includes('great')) return t('chat.moodHappy');
+    if (lower.includes('love') || lower.includes('crush')) return t('chat.moodLove');
+    return t('chat.moodListening');
+  }
 
   // ---- voice ----
   // Voice-out only ever follows voice-in: if you record a voice
@@ -145,7 +150,7 @@ export default function Chat() {
       // No auto-voice here -- typed messages get a text reply back,
       // same as before. See playReply's comment.
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Something went wrong';
+      const message = err instanceof Error ? err.message : t('errors.somethingWrong');
       if (message.includes('Daily limit reached')) {
         setLimitReached(true);
       } else {
@@ -221,7 +226,7 @@ export default function Chat() {
       recorder.start();
       setRecording(true);
     } catch {
-      setVoiceNotice({ text: "Couldn't access your microphone. Check your browser's permissions and try again." });
+      setVoiceNotice({ text: t('chat.micPermissionError') });
     }
   }
 
@@ -250,9 +255,9 @@ export default function Chat() {
       }
     } catch (err) {
       if (err instanceof VoicePremiumRequiredError) {
-        setVoiceNotice({ text: 'Voice chat is an Ollie Premium feature.', upgrade: true });
+        setVoiceNotice({ text: t('chat.voicePremiumChat'), upgrade: true });
       } else {
-        setVoiceNotice({ text: err instanceof Error ? err.message : "Couldn't hear that. Try again." });
+        setVoiceNotice({ text: err instanceof Error ? err.message : t('chat.voiceHearError') });
       }
     } finally {
       setIsTyping(false);
@@ -262,13 +267,13 @@ export default function Chat() {
   return (
     <div className="page-shell chat-page">
       <header className="chat-header">
-        <button className="settings-back" onClick={() => navigate('/home')} aria-label="Back to Home">
+        <button className="settings-back" onClick={() => navigate('/home')} aria-label={t('common.back')}>
           ←
         </button>
         <OllieOrb size={40} breathing />
         <div className="chat-header__titles">
-          <span className="chat-header__name">Ollie</span>
-          <span className="chat-header__status">always here</span>
+          <span className="chat-header__name">{t('chat.name')}</span>
+          <span className="chat-header__status">{t('chat.status')}</span>
         </div>
         <div className="chat-header__spacer" />
         {streak > 0 && (
@@ -282,9 +287,9 @@ export default function Chat() {
 
       <div className="chat-messages" ref={scrollRef}>
         {loadingHistory ? (
-          <div className="chat-empty">Loading your conversation…</div>
+          <div className="chat-empty">{t('chat.loadingConversation')}</div>
         ) : messages.length === 0 ? (
-          <div className="chat-empty">Say hi to Ollie 👋</div>
+          <div className="chat-empty">{t('chat.sayHi')}</div>
         ) : (
           messages.map((msg) => (
             <div key={msg.clientId} className={`bubble-row${msg.isOllie ? '' : ' bubble-row--user'}`}>
@@ -293,12 +298,12 @@ export default function Chat() {
                 <div className={`bubble${msg.isOllie ? ' bubble--ollie' : ' bubble--user'}`}>{msg.text}</div>
                 {msg.isOllie && playingMessageId === msg.clientId && (
                   <button type="button" className="bubble-speak bubble-speak--active" onClick={stopPlaying}>
-                    🔊 Speaking… · tap to stop
+                    {t('chat.speakingTapToStop')}
                   </button>
                 )}
                 {msg.failed && (
                   <button className="bubble-retry" onClick={() => retry(msg)}>
-                    Couldn't send · Retry
+                    {t('chat.retrySend')}
                   </button>
                 )}
               </div>
@@ -319,9 +324,9 @@ export default function Chat() {
 
       {limitReached && (
         <div className="limit-banner">
-          <span>You're out of free messages for today.</span>
+          <span>{t('chat.outOfMessages')}</span>
           <Link to="/premium" className="btn-pill limit-banner__cta">
-            Go premium
+            {t('common.goPremium')}
           </Link>
         </div>
       )}
@@ -331,7 +336,7 @@ export default function Chat() {
           <span>{voiceNotice.text}</span>
           {voiceNotice.upgrade && (
             <Link to="/premium" className="voice-notice__link">
-              Go premium
+              {t('common.goPremium')}
             </Link>
           )}
         </div>
@@ -341,7 +346,7 @@ export default function Chat() {
         <input
           className="field chat-input"
           type="text"
-          placeholder={recording ? 'Recording…' : 'Message Ollie…'}
+          placeholder={recording ? t('chat.recordingPlaceholder') : t('chat.inputPlaceholder')}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={isTyping || recording}
@@ -351,7 +356,7 @@ export default function Chat() {
           className={`chat-mic${recording ? ' chat-mic--recording' : ''}`}
           onClick={recording ? stopRecording : startRecording}
           disabled={isTyping && !recording}
-          aria-label={recording ? 'Stop recording' : 'Record a voice message'}
+          aria-label={recording ? t('chat.stopRecording') : t('chat.recordVoice')}
         >
           {recording ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -368,7 +373,7 @@ export default function Chat() {
             </svg>
           )}
         </button>
-        <button className="chat-send" type="submit" disabled={isTyping || recording || !input.trim()} aria-label="Send">
+        <button className="chat-send" type="submit" disabled={isTyping || recording || !input.trim()} aria-label={t('chat.send')}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M4 12L20 4L14 20L11 13L4 12Z" fill="currentColor" />
           </svg>

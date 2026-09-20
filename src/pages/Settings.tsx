@@ -1,6 +1,8 @@
 import { ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../components/ConfirmDialog';
+import i18n, { SUPPORTED_LANGUAGES } from '../i18n';
 import {
   clearTokens,
   clearMemory,
@@ -18,42 +20,25 @@ import {
 import './Settings.css';
 
 // Ported from settings_screen.dart's section-by-section layout
-// (Account / Usage / Notifications / Location / Memory / About).
-// Left out on purpose, for now: the full "Manage memories" list/edit
-// screen (memories_screen.dart) and a Play/LemonSqueezy customer-
-// portal deep link for "Manage subscription" -- everything else here
-// hits a real endpoint, nothing is a stub.
+// (Account / Usage / Notifications / Location / Memory / Language /
+// About). Left out on purpose, for now: the full "Manage memories"
+// list/edit screen (memories_screen.dart) and a Play/LemonSqueezy
+// customer-portal deep link for "Manage subscription" -- everything
+// else here hits a real endpoint, nothing is a stub.
 
-const FREQUENCY_OPTIONS = [
-  { value: 'off', label: 'Off', description: "Ollie won't reach out first" },
-  { value: 'low', label: 'Low', description: 'Just a morning hello' },
-  { value: 'normal', label: 'Normal', description: 'Morning, evening, and check-ins' },
-  { value: 'frequent', label: 'Frequent', description: "More often, checks in sooner if you're quiet" },
-] as const;
+const FREQUENCY_VALUES = ['off', 'low', 'normal', 'frequent'] as const;
+type FrequencyValue = (typeof FREQUENCY_VALUES)[number];
 
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DELETE_PHRASE = 'DELETE';
 
-function planLabel(productId: string | null): string | null {
-  if (productId === 'ollie_premium_yearly_web') return 'Yearly';
-  if (productId === 'ollie_premium_monthly_web') return 'Monthly';
-  return null;
-}
-
-function renewalSummary(expiryMs: number | null): string | null {
-  if (!expiryMs) return null;
-  const date = new Date(expiryMs);
-  return `Renews ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-}
-
-function locationSummary(country: string | null, region: string | null, district: string | null): string {
-  const parts = [district, region, country].filter((p) => p && p.trim());
-  return parts.length ? parts.join(', ') : 'Not set';
+function normalizeLanguage(lng: string): string {
+  return lng.split('-')[0];
 }
 
 type ConfirmAction = 'logout' | 'clearMemory' | null;
 
 export default function Settings() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [premium, setPremium] = useState<PremiumStatus | null>(null);
@@ -64,6 +49,7 @@ export default function Settings() {
   const [exporting, setExporting] = useState(false);
 
   const [frequencyOpen, setFrequencyOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
 
   const [locationOpen, setLocationOpen] = useState(false);
   const [country, setCountry] = useState('');
@@ -112,7 +98,7 @@ export default function Settings() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      flash('Could not export your data, try again', true);
+      flash(t('settings.toastExportError'), true);
     } finally {
       setExporting(false);
     }
@@ -122,13 +108,13 @@ export default function Settings() {
     setConfirmAction(null);
     try {
       await clearMemory();
-      flash('Memory cleared');
+      flash(t('settings.toastMemoryCleared'));
     } catch {
-      flash('Could not clear memory, try again', true);
+      flash(t('settings.toastMemoryClearError'), true);
     }
   }
 
-  async function handleSetFrequency(value: (typeof FREQUENCY_OPTIONS)[number]['value']) {
+  async function handleSetFrequency(value: FrequencyValue) {
     if (!usage) return;
     if (value === 'frequent' && !usage.is_premium) {
       navigate('/premium');
@@ -141,8 +127,13 @@ export default function Settings() {
       await updateNotificationFrequency(value);
     } catch {
       setUsage((u) => (u ? { ...u, notification_frequency: previous } : u));
-      flash('Could not update notification setting', true);
+      flash(t('settings.toastFrequencyError'), true);
     }
+  }
+
+  function handleSetLanguage(code: string) {
+    setLanguageOpen(false);
+    i18n.changeLanguage(code);
   }
 
   async function handleToggleMemory(enabled: boolean) {
@@ -152,7 +143,7 @@ export default function Settings() {
       await setMemoryEnabled(enabled);
     } catch {
       setUsage((u) => (u ? { ...u, memory_enabled: !enabled } : u));
-      flash('Could not update memory setting', true);
+      flash(t('settings.toastMemoryToggleError'), true);
     }
   }
 
@@ -167,9 +158,9 @@ export default function Settings() {
       await updateLocation(payload);
       setUsage((u) => (u ? { ...u, ...payload } : u));
       setLocationOpen(false);
-      flash('Location updated');
+      flash(t('settings.toastLocationUpdated'));
     } catch {
-      flash('Could not update location, try again', true);
+      flash(t('settings.toastLocationError'), true);
     } finally {
       setSavingLocation(false);
     }
@@ -180,46 +171,77 @@ export default function Settings() {
     setDeleting(true);
     try {
       await requestDeleteAccount(deleteConfirmText.trim());
-      flash("Account deletion scheduled. Log back in before it's final to cancel. Logging you out…");
+      flash(t('settings.toastDeleteScheduled'));
       setTimeout(() => {
         clearTokens();
         navigate('/');
       }, 2500);
     } catch (err) {
-      flash(err instanceof Error ? err.message : 'Could not schedule account deletion', true);
+      flash(err instanceof Error ? err.message : t('settings.toastDeleteError'), true);
       setDeleting(false);
     }
   }
 
+  function planLabel(productId: string | null): string | null {
+    if (productId === 'ollie_premium_yearly_web') return t('premium.yearly');
+    if (productId === 'ollie_premium_monthly_web') return t('premium.monthly');
+    return null;
+  }
+
+  function renewalSummary(expiryMs: number | null): string | null {
+    if (!expiryMs) return null;
+    const formatted = new Intl.DateTimeFormat(i18n.language, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(expiryMs));
+    return t('settings.renewsOn', { date: formatted });
+  }
+
+  function locationSummary(): string {
+    const parts = [usage?.district, usage?.region, usage?.country].filter((p) => p && p.trim());
+    return parts.length ? parts.join(', ') : t('settings.locationNotSet');
+  }
+
+  const FREQUENCY_OPTIONS: Array<{ value: FrequencyValue; label: string; description: string }> = [
+    { value: 'off', label: t('settings.freqOffLabel'), description: t('settings.freqOffDescription') },
+    { value: 'low', label: t('settings.freqLowLabel'), description: t('settings.freqLowDescription') },
+    { value: 'normal', label: t('settings.freqNormalLabel'), description: t('settings.freqNormalDescription') },
+    { value: 'frequent', label: t('settings.freqFrequentLabel'), description: t('settings.freqFrequentDescription') },
+  ];
+
   const isPremium = usage?.is_premium ?? false;
   const plan = planLabel(premium?.product_id ?? null);
   const renewal = isPremium ? renewalSummary(premium?.expiry_time_millis ?? null) : null;
-  const frequencyLabel = FREQUENCY_OPTIONS.find((o) => o.value === usage?.notification_frequency)?.label ?? 'Normal';
+  const frequencyLabel = FREQUENCY_OPTIONS.find((o) => o.value === usage?.notification_frequency)?.label ?? t('settings.freqNormalLabel');
+  const currentLangCode = normalizeLanguage(i18n.language || 'en');
+  const currentLanguageLabel = SUPPORTED_LANGUAGES.find((l) => l.code === currentLangCode)?.label ?? SUPPORTED_LANGUAGES[0].label;
 
   return (
     <div className="page-shell settings-page">
       <header className="settings-header">
-        <button className="settings-back" onClick={() => navigate('/home')} aria-label="Back">
+        <button className="settings-back" onClick={() => navigate('/home')} aria-label={t('common.back')}>
           ←
         </button>
-        <h1>Settings</h1>
+        <h1>{t('settings.title')}</h1>
       </header>
 
       {loading ? (
-        <div className="settings-loading">Loading…</div>
+        <div className="settings-loading">{t('common.loading')}</div>
       ) : (
         <div className="settings-list">
-          <SectionLabel>Account</SectionLabel>
-          <InfoTile icon="📧" title="Email" value={usage?.email ?? '—'} />
-          <ActionTile icon="🚪" title="Log out" onClick={() => setConfirmAction('logout')} />
-          <ActionTile icon="⬇️" title={exporting ? 'Preparing your export…' : 'Export my data'} onClick={handleExport} />
-          <ActionTile icon="🗑️" title="Delete account" destructive onClick={() => setDeleteOpen((v) => !v)} />
+          <SectionLabel>{t('settings.sectionAccount')}</SectionLabel>
+          <InfoTile icon="📧" title={t('settings.email')} value={usage?.email ?? '—'} />
+          <ActionTile icon="🚪" title={t('settings.logOut')} onClick={() => setConfirmAction('logout')} />
+          <ActionTile
+            icon="⬇️"
+            title={exporting ? t('settings.exportPreparing') : t('settings.exportData')}
+            onClick={handleExport}
+          />
+          <ActionTile icon="🗑️" title={t('settings.deleteAccount')} destructive onClick={() => setDeleteOpen((v) => !v)} />
           {deleteOpen && (
             <div className="settings-panel settings-panel--danger">
-              <p className="settings-panel__hint">
-                This starts a grace period before your account and everything in it is permanently deleted. Logging
-                back in before then cancels it. Type <strong>{DELETE_PHRASE}</strong> to confirm.
-              </p>
+              <p className="settings-panel__hint">{t('settings.deleteHint', { phrase: DELETE_PHRASE })}</p>
               <input
                 className="field"
                 value={deleteConfirmText}
@@ -232,26 +254,26 @@ export default function Settings() {
                 disabled={deleteConfirmText.trim() !== DELETE_PHRASE || deleting}
                 onClick={handleDeleteAccount}
               >
-                {deleting ? 'Deleting…' : 'Delete my account'}
+                {deleting ? t('settings.deleting') : t('settings.deleteConfirmButton')}
               </button>
             </div>
           )}
 
-          <SectionLabel>Usage</SectionLabel>
+          <SectionLabel>{t('settings.sectionUsage')}</SectionLabel>
           <InfoTile
             icon="💬"
-            title="Messages today"
+            title={t('settings.messagesToday')}
             value={`${usage?.messages_used_today ?? 0} / ${usage?.daily_limit ?? 20}${
-              isPremium ? ' (premium — unlimited)' : ''
-            }${usage?.has_active_ad_bonus ? ' · bonus active' : ''}`}
+              isPremium ? t('settings.premiumUnlimited') : ''
+            }${usage?.has_active_ad_bonus ? t('settings.bonusActive') : ''}`}
           />
-          <InfoTile icon="🏆" title="Plan" value={isPremium ? plan ?? 'Premium' : 'Free'} />
-          {isPremium && renewal && <InfoTile icon="🔁" title="Renewal" value={renewal} />}
-          {!isPremium && <ActionTile icon="⭐" title="Upgrade to Premium" onClick={() => navigate('/premium')} />}
+          <InfoTile icon="🏆" title={t('settings.plan')} value={isPremium ? plan ?? t('settings.premiumBadge') : t('settings.planFree')} />
+          {isPremium && renewal && <InfoTile icon="🔁" title={t('settings.renewal')} value={renewal} />}
+          {!isPremium && <ActionTile icon="⭐" title={t('settings.upgradeToPremium')} onClick={() => navigate('/premium')} />}
 
-          <SectionLabel>Notifications</SectionLabel>
-          <InfoTile icon="🔔" title="How often Ollie reaches out" value={frequencyLabel} />
-          <ActionTile icon="⚙️" title="Change" onClick={() => setFrequencyOpen((v) => !v)} />
+          <SectionLabel>{t('settings.sectionNotifications')}</SectionLabel>
+          <InfoTile icon="🔔" title={t('settings.reachOutFrequency')} value={frequencyLabel} />
+          <ActionTile icon="⚙️" title={t('settings.change')} onClick={() => setFrequencyOpen((v) => !v)} />
           {frequencyOpen && (
             <div className="settings-panel">
               {FREQUENCY_OPTIONS.map((option) => {
@@ -263,7 +285,7 @@ export default function Settings() {
                     <span className="frequency-option__text">
                       <span className="frequency-option__label">
                         {option.label}
-                        {locked && <span className="frequency-option__badge">PREMIUM</span>}
+                        {locked && <span className="frequency-option__badge">{t('settings.premiumBadge')}</span>}
                       </span>
                       <span className="frequency-option__description">{option.description}</span>
                     </span>
@@ -273,46 +295,67 @@ export default function Settings() {
             </div>
           )}
 
-          <SectionLabel>Location</SectionLabel>
-          <InfoTile icon="📍" title="Your location" value={locationSummary(usage?.country ?? null, usage?.region ?? null, usage?.district ?? null)} />
+          <SectionLabel>{t('settings.sectionLocation')}</SectionLabel>
+          <InfoTile icon="📍" title={t('settings.yourLocation')} value={locationSummary()} />
           <ActionTile
             icon="✏️"
-            title={usage?.country || usage?.region || usage?.district ? 'Edit location' : 'Set your location'}
+            title={usage?.country || usage?.region || usage?.district ? t('settings.editLocation') : t('settings.setLocation')}
             onClick={() => setLocationOpen((v) => !v)}
           />
           {locationOpen && (
             <div className="settings-panel">
-              <p className="settings-panel__hint">
-                So Ollie can talk like a local — reference your culture, holidays, what's actually going on where you
-                are.
-              </p>
-              <input className="field" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country" />
+              <p className="settings-panel__hint">{t('settings.locationHint')}</p>
+              <input
+                className="field"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder={t('settings.countryPlaceholder')}
+              />
               <input
                 className="field"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                placeholder="State / Province / Region"
+                placeholder={t('settings.regionPlaceholder')}
               />
               <input
                 className="field"
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                placeholder="District / City (optional)"
+                placeholder={t('settings.districtPlaceholder')}
               />
               <button className="btn-pill settings-panel__confirm-btn" disabled={savingLocation} onClick={handleSaveLocation}>
-                {savingLocation ? 'Saving…' : 'Save'}
+                {savingLocation ? t('common.saving') : t('common.save')}
               </button>
             </div>
           )}
 
-          <SectionLabel>Memory</SectionLabel>
-          <SwitchTile icon="🧠" title="Let Ollie remember" value={usage?.memory_enabled ?? true} onChange={handleToggleMemory} />
-          <ActionTile icon="🔄" title="Clear Ollie's memory of you" destructive onClick={() => setConfirmAction('clearMemory')} />
+          <SectionLabel>{t('settings.sectionMemory')}</SectionLabel>
+          <SwitchTile icon="🧠" title={t('settings.letOllieRemember')} value={usage?.memory_enabled ?? true} onChange={handleToggleMemory} />
+          <ActionTile icon="🔄" title={t('settings.clearMemory')} destructive onClick={() => setConfirmAction('clearMemory')} />
 
-          <SectionLabel>About</SectionLabel>
-          <InfoTile icon="ℹ️" title="Ollie" value="Made in Rwanda 🇷🇼" />
-          <ActionTile icon="🔒" title="Privacy Policy" onClick={() => navigate('/privacy')} />
-          <ActionTile icon="📄" title="Terms of Service" onClick={() => navigate('/terms')} />
+          <SectionLabel>{t('settings.language')}</SectionLabel>
+          <InfoTile icon="🌐" title={t('settings.chooseLanguage')} value={currentLanguageLabel} />
+          <ActionTile icon="⚙️" title={t('settings.change')} onClick={() => setLanguageOpen((v) => !v)} />
+          {languageOpen && (
+            <div className="settings-panel">
+              {SUPPORTED_LANGUAGES.map((lang) => {
+                const selected = lang.code === currentLangCode;
+                return (
+                  <button key={lang.code} className="frequency-option" onClick={() => handleSetLanguage(lang.code)}>
+                    <span className={`frequency-option__dot${selected ? ' frequency-option__dot--selected' : ''}`} />
+                    <span className="frequency-option__text">
+                      <span className="frequency-option__label">{lang.label}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <SectionLabel>{t('settings.sectionAbout')}</SectionLabel>
+          <InfoTile icon="ℹ️" title={t('settings.aboutOllie')} value={t('settings.madeInRwanda')} />
+          <ActionTile icon="🔒" title={t('settings.privacyPolicy')} onClick={() => navigate('/privacy')} />
+          <ActionTile icon="📄" title={t('settings.termsOfService')} onClick={() => navigate('/terms')} />
         </div>
       )}
 
@@ -320,18 +363,18 @@ export default function Settings() {
 
       {confirmAction === 'logout' && (
         <ConfirmDialog
-          title="Log out?"
-          message="You can log back in anytime."
-          confirmLabel="Log out"
+          title={t('settings.logOutTitle')}
+          message={t('settings.logOutMessage')}
+          confirmLabel={t('settings.logOut')}
           onConfirm={handleLogout}
           onCancel={() => setConfirmAction(null)}
         />
       )}
       {confirmAction === 'clearMemory' && (
         <ConfirmDialog
-          title="Clear memory?"
-          message="Ollie will forget everything it's learned about you — your interests, things you've shared, patterns it noticed. This can't be undone."
-          confirmLabel="Clear memory"
+          title={t('settings.clearMemoryTitle')}
+          message={t('settings.clearMemoryMessage')}
+          confirmLabel={t('settings.clearMemoryConfirm')}
           destructive
           onConfirm={handleClearMemory}
           onCancel={() => setConfirmAction(null)}

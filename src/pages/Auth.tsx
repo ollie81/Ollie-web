@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
 import {
@@ -17,6 +18,7 @@ type Mode = 'login' | 'signup' | 'forgot';
 type Step = 'form' | 'otp';
 
 export default function Auth() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [method, setMethod] = useState<Method>('google');
   const [mode, setMode] = useState<Mode>('login');
@@ -86,10 +88,10 @@ export default function Auth() {
       } else if (result.access_token) {
         navigate('/home');
       } else {
-        setError('Google sign-in failed. Try again.');
+        setError(t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed. Try again.');
+      setError(err instanceof Error ? err.message : t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -105,10 +107,10 @@ export default function Auth() {
       if (result.access_token) {
         navigate('/home');
       } else {
-        setError("Couldn't finish signing up. Try again.");
+        setError(t('errors.signupIncomplete', "Couldn't finish signing up. Try again."));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Try again.');
+      setError(err instanceof Error ? err.message : t('errors.somethingWrong', 'Something went wrong. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -145,7 +147,7 @@ export default function Auth() {
         if (step === 'form') {
           await emailRequestSignupOtp(email);
           setStep('otp');
-          setInfo(`We sent a code to ${email}`);
+          setInfo(t('auth.codeSentTo', { email }));
         } else {
           await emailSignup(email, password, otp);
           navigate('/home');
@@ -157,14 +159,14 @@ export default function Auth() {
       if (step === 'form') {
         await emailForgotPassword(email);
         setStep('otp');
-        setInfo(`We sent a reset code to ${email}`);
+        setInfo(t('auth.resetCodeSentTo', { email }));
       } else {
         await emailResetPassword(email, otp, newPassword);
-        setInfo('Password reset — you can log in now.');
+        setInfo(t('auth.passwordResetDone'));
         switchMode('login');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Try again.');
+      setError(err instanceof Error ? err.message : t('errors.somethingWrong', 'Something went wrong. Try again.'));
     } finally {
       setLoading(false);
     }
@@ -175,10 +177,10 @@ export default function Auth() {
       <div className="auth-hero">
         <OllieOrb size={56} breathing />
         <h1>Ollie</h1>
-        <p>{method === 'google' && pendingGoogleIdToken ? 'One more thing' : 'Good to see you again'}</p>
+        <p>{method === 'google' && pendingGoogleIdToken ? t('auth.subtitleOneMoreThing') : t('auth.subtitleReturning')}</p>
       </div>
 
-      <div className="auth-tabs" role="tablist" aria-label="Sign in method">
+      <div className="auth-tabs" role="tablist" aria-label={t('auth.signInMethod')}>
         <button
           type="button"
           role="tab"
@@ -186,7 +188,7 @@ export default function Auth() {
           className={`auth-tab${method === 'google' ? ' auth-tab--active' : ''}`}
           onClick={() => switchMethod('google')}
         >
-          Google
+          {t('auth.tabGoogle')}
         </button>
         <button
           type="button"
@@ -195,7 +197,7 @@ export default function Auth() {
           className={`auth-tab${method === 'email' ? ' auth-tab--active' : ''}`}
           onClick={() => switchMethod('email')}
         >
-          Email
+          {t('auth.tabEmail')}
         </button>
       </div>
 
@@ -205,7 +207,7 @@ export default function Auth() {
       {method === 'google' ? (
         pendingGoogleIdToken ? (
           <form className="auth-form" onSubmit={handleDobSubmit}>
-            <p className="auth-dob-hint">Ollie needs your birthdate to finish setting up your account.</p>
+            <p className="auth-dob-hint">{t('auth.dobHint')}</p>
             <input
               className="field"
               type="date"
@@ -215,19 +217,17 @@ export default function Auth() {
               required
             />
             <button className="btn-pill auth-submit" type="submit" disabled={loading}>
-              {loading ? 'Please wait…' : 'Continue'}
+              {loading ? t('auth.pleaseWait') : t('auth.continue')}
             </button>
           </form>
         ) : googleUnavailable ? (
           <div className="google-button-wrap">
-            <p className="auth-dob-hint">
-              Google sign-in didn't load — check your connection, or use the Email tab instead.
-            </p>
+            <p className="auth-dob-hint">{t('auth.googleUnavailable')}</p>
           </div>
         ) : (
           <div className="google-button-wrap">
             <div ref={googleButtonRef} />
-            {loading && <p className="auth-dob-hint">Signing in…</p>}
+            {loading && <p className="auth-dob-hint">{t('auth.signingIn')}</p>}
           </div>
         )
       ) : (
@@ -240,7 +240,7 @@ export default function Auth() {
                   type="email"
                   inputMode="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -250,7 +250,7 @@ export default function Auth() {
                     className="field"
                     type="password"
                     autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                    placeholder="Password"
+                    placeholder={t('auth.passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -267,7 +267,7 @@ export default function Auth() {
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder="6-digit code"
+                  placeholder={t('auth.otpPlaceholder')}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   required
@@ -277,7 +277,7 @@ export default function Auth() {
                     className="field"
                     type="password"
                     autoComplete="new-password"
-                    placeholder="New password"
+                    placeholder={t('auth.newPasswordPlaceholder')}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -288,12 +288,12 @@ export default function Auth() {
             )}
 
             <button className="btn-pill auth-submit" type="submit" disabled={loading}>
-              {loading ? 'Please wait…' : submitLabel(mode, step)}
+              {loading ? t('auth.pleaseWait') : submitLabel(mode, step, t)}
             </button>
 
             {mode === 'login' && (
               <button type="button" className="btn-text" onClick={() => switchMode('forgot')}>
-                Forgot password?
+                {t('auth.forgotPassword')}
               </button>
             )}
           </form>
@@ -301,11 +301,11 @@ export default function Auth() {
           <div className="auth-switch">
             {mode === 'login' ? (
               <>
-                New here? <button type="button" onClick={() => switchMode('signup')}>Create an account</button>
+                {t('auth.newHere')} <button type="button" onClick={() => switchMode('signup')}>{t('auth.createAccount')}</button>
               </>
             ) : (
               <>
-                Already have an account? <button type="button" onClick={() => switchMode('login')}>Log in</button>
+                {t('auth.alreadyHaveAccount')} <button type="button" onClick={() => switchMode('login')}>{t('auth.logIn')}</button>
               </>
             )}
           </div>
@@ -315,9 +315,9 @@ export default function Auth() {
   );
 }
 
-function submitLabel(mode: Mode, step: Step): string {
-  if (mode === 'login') return 'Log in';
-  if (step === 'form') return 'Send code';
-  if (mode === 'signup') return 'Create account';
-  return 'Reset password';
+function submitLabel(mode: Mode, step: Step, t: (key: string) => string): string {
+  if (mode === 'login') return t('auth.submitLogin');
+  if (step === 'form') return t('auth.submitSendCode');
+  if (mode === 'signup') return t('auth.submitCreateAccount');
+  return t('auth.submitResetPassword');
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import OllieOrb from '../components/OllieOrb';
 import { createCheckoutSession } from '../lib/api';
 import './Premium.css';
@@ -6,6 +7,7 @@ import './Premium.css';
 type Plan = 'monthly' | 'yearly';
 
 export default function Premium() {
+  const { t } = useTranslation();
   const [plan, setPlan] = useState<Plan>('yearly');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export default function Premium() {
       const { checkout_url } = await createCheckoutSession(plan);
       window.location.href = checkout_url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not start checkout. Try again.');
+      setError(err instanceof Error ? err.message : t('premium.checkoutError'));
       setLoading(false);
     }
   }
@@ -26,8 +28,8 @@ export default function Premium() {
     <div className="page-shell premium-page">
       <div className="premium-hero">
         <OllieOrb size={64} breathing />
-        <h1>Go premium</h1>
-        <p>Unlimited messages, deeper memory, and voice conversations with Ollie.</p>
+        <h1>{t('premium.title')}</h1>
+        <p>{t('premium.description')}</p>
       </div>
 
       <div className="plan-options">
@@ -36,26 +38,26 @@ export default function Premium() {
           className={`plan-card${plan === 'monthly' ? ' plan-card--selected' : ''}`}
           onClick={() => setPlan('monthly')}
         >
-          <span className="plan-card__name">Monthly</span>
-          <span className="plan-card__detail">Billed monthly · see price at checkout</span>
+          <span className="plan-card__name">{t('premium.monthly')}</span>
+          <span className="plan-card__detail">{t('premium.monthlyDetail')}</span>
         </button>
         <button
           type="button"
           className={`plan-card${plan === 'yearly' ? ' plan-card--selected' : ''}`}
           onClick={() => setPlan('yearly')}
         >
-          <span className="plan-card__badge">Best value</span>
-          <span className="plan-card__name">Yearly</span>
-          <span className="plan-card__detail">Billed yearly · see price at checkout</span>
+          <span className="plan-card__badge">{t('premium.bestValue')}</span>
+          <span className="plan-card__name">{t('premium.yearly')}</span>
+          <span className="plan-card__detail">{t('premium.yearlyDetail')}</span>
         </button>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
 
       <button className="btn-pill premium-cta" onClick={handleContinue} disabled={loading}>
-        {loading ? 'Redirecting…' : 'Continue'}
+        {loading ? t('premium.redirecting') : t('premium.continue')}
       </button>
-      <p className="premium-footnote">Secure checkout. Cancel anytime.</p>
+      <p className="premium-footnote">{t('premium.footnote')}</p>
     </div>
   );
 }
