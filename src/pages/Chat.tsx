@@ -8,7 +8,6 @@ import {
   getHistory,
   getModeStarter,
   getUsage,
-  logout,
   sendMessage,
   VoicePremiumRequiredError,
 } from '../lib/api';
@@ -174,11 +173,6 @@ export default function Chat() {
     requestReply(msg);
   }
 
-  async function handleLogout() {
-    await logout();
-    navigate('/auth');
-  }
-
   // ---- voice output: plays Ollie's spoken reply, bundled into the
   // same /chat/voice response as the transcription+text reply (see
   // chatVoice's includeAudio param) -- not a separate /speak call,
@@ -268,6 +262,9 @@ export default function Chat() {
   return (
     <div className="page-shell chat-page">
       <header className="chat-header">
+        <button className="settings-back" onClick={() => navigate('/home')} aria-label="Back to Home">
+          ←
+        </button>
         <OllieOrb size={40} breathing />
         <div className="chat-header__titles">
           <span className="chat-header__name">Ollie</span>
@@ -279,9 +276,6 @@ export default function Chat() {
             🔥 {streak}
           </span>
         )}
-        <button className="btn-text" onClick={handleLogout} aria-label="Log out">
-          Log out
-        </button>
       </header>
 
       <div className="emotional-pill">{header}</div>
