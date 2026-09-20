@@ -21,6 +21,7 @@
     "signInMethod": "Sign in method",
     "dobHint": "Ollie needs your birthdate to finish setting up your account.",
     "pleaseWait": "Please wait…",
+    "checkingGoogle": "Checking Google sign-in…",
     "continue": "Continue",
     "googleUnavailable": "Google sign-in didn't load — check your connection, or use the Email tab instead.",
     "signingIn": "Signing in…",

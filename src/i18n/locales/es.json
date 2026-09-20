@@ -21,6 +21,7 @@
     "signInMethod": "Método de inicio de sesión",
     "dobHint": "Ollie necesita tu fecha de nacimiento para terminar de configurar tu cuenta.",
     "pleaseWait": "Espera un momento…",
+    "checkingGoogle": "Comprobando el inicio de sesión con Google…",
     "continue": "Continuar",
     "googleUnavailable": "El inicio de sesión con Google no cargó — revisa tu conexión, o usa la pestaña de Correo.",
     "signingIn": "Iniciando sesión…",

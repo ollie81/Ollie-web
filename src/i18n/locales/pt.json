@@ -21,6 +21,7 @@
     "signInMethod": "Método de login",
     "dobHint": "O Ollie precisa da sua data de nascimento para terminar de criar sua conta.",
     "pleaseWait": "Aguarde…",
+    "checkingGoogle": "Verificando o login do Google…",
     "continue": "Continuar",
     "googleUnavailable": "O login com Google não carregou — verifique sua conexão ou use a aba Email.",
     "signingIn": "Entrando…",

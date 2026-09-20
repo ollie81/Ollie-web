@@ -21,6 +21,7 @@
     "signInMethod": "登录方式",
     "dobHint": "Ollie 需要你的出生日期来完成账户设置。",
     "pleaseWait": "请稍候…",
+    "checkingGoogle": "正在检查 Google 登录…",
     "continue": "继续",
     "googleUnavailable": "Google 登录未能加载 — 请检查网络连接,或改用邮箱登录。",
     "signingIn": "登录中…",

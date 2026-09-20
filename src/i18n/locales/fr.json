@@ -21,6 +21,7 @@
     "signInMethod": "Méthode de connexion",
     "dobHint": "Ollie a besoin de ta date de naissance pour finaliser ton compte.",
     "pleaseWait": "Veuillez patienter…",
+    "checkingGoogle": "Vérification de la connexion Google…",
     "continue": "Continuer",
     "googleUnavailable": "La connexion Google n'a pas pu se charger — vérifie ta connexion, ou utilise l'onglet Email.",
     "signingIn": "Connexion…",

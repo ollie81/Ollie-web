@@ -46,12 +46,20 @@ export default function Auth() {
   // Cloud Console) would otherwise leave the button area blank
   // forever with no explanation and no way forward.
   const [googleUnavailable, setGoogleUnavailable] = useState(false);
+  // Set once the real Google button has actually rendered -- Google
+  // is the default tab, so without this the button area is just
+  // empty for up to 5s on every page load (worse whenever the script
+  // is slow or blocked), which reads as a broken/frozen page rather
+  // than "still loading". See googleUnavailable above for what
+  // happens if it never renders at all.
+  const [googleButtonReady, setGoogleButtonReady] = useState(false);
 
   useEffect(() => {
     if (method !== 'google' || pendingGoogleIdToken) return;
     let cancelled = false;
     const deadline = Date.now() + 5000;
     setGoogleUnavailable(false);
+    setGoogleButtonReady(false);
 
     function tryRender() {
       if (cancelled) return;
@@ -65,6 +73,7 @@ export default function Auth() {
           width: 320,
           text: 'continue_with',
         });
+        setGoogleButtonReady(true);
       } else if (Date.now() < deadline) {
         setTimeout(tryRender, 100);
       } else {
@@ -227,6 +236,7 @@ export default function Auth() {
         ) : (
           <div className="google-button-wrap">
             <div ref={googleButtonRef} />
+            {!googleButtonReady && !loading && <p className="auth-dob-hint">{t('auth.checkingGoogle')}</p>}
             {loading && <p className="auth-dob-hint">{t('auth.signingIn')}</p>}
           </div>
         )
