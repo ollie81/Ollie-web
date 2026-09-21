@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
 import {
   GOOGLE_CLIENT_ID,
@@ -20,6 +20,11 @@ type Step = 'form' | 'otp';
 export default function Auth() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Captured once on the page that loaded the share link -- read
+  // directly from the URL rather than state, since it never changes
+  // for the life of this page.
+  const [searchParams] = useSearchParams();
+  const referredBy = searchParams.get('ref');
   // Google-only for now -- the email/password tab is temporarily
   // hidden (not removed: see switchMethod/the auth-tabs block in
   // git history to bring it back) while its account-identity bugs
@@ -88,7 +93,7 @@ export default function Auth() {
     setError(null);
     setLoading(true);
     try {
-      const result = await googleLogin(response.credential);
+      const result = await googleLogin(response.credential, referredBy);
       if (result.access_token) {
         navigate('/home');
       } else {

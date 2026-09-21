@@ -88,6 +88,7 @@
     "sectionMemory": "Kumbukumbu",
     "sectionAbout": "Kuhusu",
     "email": "Barua pepe",
+    "shareOllie": "Shiriki Ollie",
     "logOut": "Toka",
     "exportPreparing": "Inaandaa data yako…",
     "exportData": "Hamisha data yangu",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "Imeshindwa kusasisha mpangilio wa kumbukumbu",
     "toastDeleteScheduled": "Ufutaji wa akaunti umepangwa. Ingia tena kabla haujakamilika ili kughairi. Unatolewa nje…",
     "toastDeleteError": "Imeshindwa kupanga ufutaji wa akaunti",
+    "toastShareCopied": "Kiungo kimenakiliwa!",
+    "toastShareError": "Imeshindikana kushiriki sasa",
     "language": "Lugha",
     "chooseLanguage": "Chagua lugha yako"
   },

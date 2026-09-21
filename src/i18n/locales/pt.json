@@ -88,6 +88,7 @@
     "sectionMemory": "Memória",
     "sectionAbout": "Sobre",
     "email": "Email",
+    "shareOllie": "Compartilhar o Ollie",
     "logOut": "Sair",
     "exportPreparing": "Preparando sua exportação…",
     "exportData": "Exportar meus dados",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "Não foi possível atualizar a configuração de memória",
     "toastDeleteScheduled": "Exclusão de conta agendada. Entre novamente antes de ser concluída para cancelar. Saindo da sua conta…",
     "toastDeleteError": "Não foi possível agendar a exclusão da conta",
+    "toastShareCopied": "Link copiado!",
+    "toastShareError": "Não foi possível compartilhar agora",
     "language": "Idioma",
     "chooseLanguage": "Escolha seu idioma"
   },

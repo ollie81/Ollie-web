@@ -88,6 +88,7 @@
     "sectionMemory": "याददाश्त",
     "sectionAbout": "जानकारी",
     "email": "ईमेल",
+    "shareOllie": "Ollie साझा करें",
     "logOut": "लॉग आउट करें",
     "exportPreparing": "आपका डेटा तैयार किया जा रहा है…",
     "exportData": "मेरा डेटा एक्सपोर्ट करें",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "याददाश्त सेटिंग अपडेट नहीं हो सकी",
     "toastDeleteScheduled": "खाता हटाना तय हो गया है। इसे रद्द करने के लिए पूरा होने से पहले फिर से लॉग इन करें। आपको लॉग आउट किया जा रहा है…",
     "toastDeleteError": "खाता हटाना तय नहीं हो सका",
+    "toastShareCopied": "लिंक कॉपी हो गया!",
+    "toastShareError": "अभी साझा नहीं कर सके",
     "language": "भाषा",
     "chooseLanguage": "अपनी भाषा चुनें"
   },

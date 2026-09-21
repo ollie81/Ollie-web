@@ -88,6 +88,7 @@
     "sectionMemory": "Memoria",
     "sectionAbout": "Acerca de",
     "email": "Correo",
+    "shareOllie": "Compartir Ollie",
     "logOut": "Cerrar sesión",
     "exportPreparing": "Preparando tu exportación…",
     "exportData": "Exportar mis datos",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "No se pudo actualizar la configuración de memoria",
     "toastDeleteScheduled": "Eliminación de cuenta programada. Vuelve a iniciar sesión antes de que se complete para cancelarla. Cerrando tu sesión…",
     "toastDeleteError": "No se pudo programar la eliminación de la cuenta",
+    "toastShareCopied": "¡Enlace copiado!",
+    "toastShareError": "No se pudo compartir en este momento",
     "language": "Idioma",
     "chooseLanguage": "Elige tu idioma"
   },

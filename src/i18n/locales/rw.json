@@ -88,6 +88,7 @@
     "sectionMemory": "Ubwibutsa",
     "sectionAbout": "Ibijyanye",
     "email": "Imeyili",
+    "shareOllie": "Sangira Ollie",
     "logOut": "Sohoka",
     "exportPreparing": "Gutegura kohereza amakuru yawe…",
     "exportData": "Kohereza amakuru yanjye",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "Ntibyashobotse guhindura igenamiterere ry'ubwibutsa",
     "toastDeleteScheduled": "Gusiba konti byateganyijwe. Injira mbere y'uko birangira kugira ngo ubihagarike. Turagusohora…",
     "toastDeleteError": "Ntibyashobotse gutegura gusiba konti",
+    "toastShareCopied": "Ihuza ryakoporowe!",
+    "toastShareError": "Ntibyashobotse gusangira ubu",
     "language": "Ururimi",
     "chooseLanguage": "Hitamo ururimi rwawe"
   },

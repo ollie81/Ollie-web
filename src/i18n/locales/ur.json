@@ -88,6 +88,7 @@
     "sectionMemory": "یادداشت",
     "sectionAbout": "بارے میں",
     "email": "ای میل",
+    "shareOllie": "Ollie شیئر کریں",
     "logOut": "لاگ آؤٹ کریں",
     "exportPreparing": "آپ کا ڈیٹا تیار کیا جا رہا ہے…",
     "exportData": "میرا ڈیٹا ایکسپورٹ کریں",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "یادداشت کی ترتیب اپ ڈیٹ نہیں ہو سکی",
     "toastDeleteScheduled": "اکاؤنٹ حذف کرنے کا وقت طے ہو گیا ہے۔ اسے منسوخ کرنے کے لیے مکمل ہونے سے پہلے دوبارہ لاگ اِن کریں۔ آپ کو لاگ آؤٹ کیا جا رہا ہے…",
     "toastDeleteError": "اکاؤنٹ حذف کرنے کا وقت طے نہیں ہو سکا",
+    "toastShareCopied": "لنک کاپی ہو گیا!",
+    "toastShareError": "ابھی شیئر نہیں ہو سکا",
     "language": "زبان",
     "chooseLanguage": "اپنی زبان منتخب کریں"
   },

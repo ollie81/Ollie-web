@@ -88,6 +88,7 @@
     "sectionMemory": "الذاكرة",
     "sectionAbout": "حول",
     "email": "البريد الإلكتروني",
+    "shareOllie": "شارك Ollie",
     "logOut": "تسجيل الخروج",
     "exportPreparing": "جارٍ تجهيز بياناتك…",
     "exportData": "تصدير بياناتي",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "تعذّر تحديث إعداد الذاكرة",
     "toastDeleteScheduled": "تمت جدولة حذف الحساب. سجّل الدخول مجددًا قبل اكتمالها لإلغاء العملية. يتم الآن تسجيل خروجك…",
     "toastDeleteError": "تعذّر جدولة حذف الحساب",
+    "toastShareCopied": "تم نسخ الرابط!",
+    "toastShareError": "تعذرت المشاركة الآن",
     "language": "اللغة",
     "chooseLanguage": "اختر لغتك"
   },

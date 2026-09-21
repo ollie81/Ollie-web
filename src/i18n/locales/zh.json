@@ -88,6 +88,7 @@
     "sectionMemory": "记忆",
     "sectionAbout": "关于",
     "email": "邮箱",
+    "shareOllie": "分享 Ollie",
     "logOut": "退出登录",
     "exportPreparing": "正在准备导出…",
     "exportData": "导出我的数据",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "无法更新记忆设置",
     "toastDeleteScheduled": "账户删除已安排。在完成之前重新登录即可取消。正在退出登录…",
     "toastDeleteError": "无法安排账户删除",
+    "toastShareCopied": "链接已复制!",
+    "toastShareError": "暂时无法分享",
     "language": "语言",
     "chooseLanguage": "选择你的语言"
   },

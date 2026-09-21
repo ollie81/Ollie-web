@@ -88,6 +88,7 @@
     "sectionMemory": "Mémoire",
     "sectionAbout": "À propos",
     "email": "Email",
+    "shareOllie": "Partager Ollie",
     "logOut": "Se déconnecter",
     "exportPreparing": "Préparation de ton export…",
     "exportData": "Exporter mes données",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "Impossible de mettre à jour ce paramètre de mémoire",
     "toastDeleteScheduled": "Suppression du compte programmée. Reconnecte-toi avant qu'elle ne soit finalisée pour l'annuler. Déconnexion en cours…",
     "toastDeleteError": "Impossible de programmer la suppression du compte",
+    "toastShareCopied": "Lien copié !",
+    "toastShareError": "Impossible de partager pour le moment",
     "language": "Langue",
     "chooseLanguage": "Choisis ta langue"
   },

@@ -88,6 +88,7 @@
     "sectionMemory": "Memory",
     "sectionAbout": "About",
     "email": "Email",
+    "shareOllie": "Share Ollie",
     "logOut": "Log out",
     "exportPreparing": "Preparing your export…",
     "exportData": "Export my data",
@@ -142,6 +143,8 @@
     "toastMemoryToggleError": "Could not update memory setting",
     "toastDeleteScheduled": "Account deletion scheduled. Log back in before it's final to cancel. Logging you out…",
     "toastDeleteError": "Could not schedule account deletion",
+    "toastShareCopied": "Link copied!",
+    "toastShareError": "Could not share right now",
     "language": "Language",
     "chooseLanguage": "Choose your language"
   },

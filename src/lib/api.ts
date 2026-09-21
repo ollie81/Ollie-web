@@ -42,6 +42,23 @@ export function clearTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+// Reads the access token's own "sub" claim rather than adding a
+// round trip to get an id the client already has -- same idea as
+// api_service.dart's googleLogin decoding the email out of the
+// Google ID token itself. Used only for building a share link.
+export function getOwnUserId(): string | null {
+  const token = getAccessToken();
+  if (!token) return null;
+  try {
+    const payload = token.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+    const decoded = JSON.parse(atob(normalized));
+    return decoded.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function isLoggedIn(): boolean {
   return !!getAccessToken();
 }
@@ -181,9 +198,10 @@ export interface GoogleLoginResponse {
   username?: string;
 }
 
-export async function googleLogin(idToken: string): Promise<GoogleLoginResponse> {
+export async function googleLogin(idToken: string, referredBy?: string | null): Promise<GoogleLoginResponse> {
   const data = await publicRequest<GoogleLoginResponse>('POST', '/auth/google', {
     id_token: idToken,
+    ...(referredBy ? { referred_by: referredBy } : {}),
   });
   if (data.access_token && data.refresh_token) {
     saveTokens(data.access_token, data.refresh_token);

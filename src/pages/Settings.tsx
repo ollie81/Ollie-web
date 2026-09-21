@@ -7,6 +7,7 @@ import {
   clearTokens,
   clearMemory,
   exportUserData,
+  getOwnUserId,
   getPremiumStatus,
   getUsage,
   logout,
@@ -101,6 +102,25 @@ export default function Settings() {
       flash(t('settings.toastExportError'), true);
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleShare() {
+    const userId = getOwnUserId();
+    const url = `https://ourollie.space/auth${userId ? `?ref=${userId}` : ''}`;
+    const text = "I've been talking to Ollie, an AI that actually remembers and checks in on you. Thought you might like it too.";
+    try {
+      if (navigator.share) {
+        await navigator.share({ text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        flash(t('settings.toastShareCopied'));
+      }
+    } catch (err) {
+      // AbortError just means the user closed the native share sheet
+      // without picking anything -- not a real failure.
+      if (err instanceof Error && err.name === 'AbortError') return;
+      flash(t('settings.toastShareError'), true);
     }
   }
 
@@ -232,6 +252,7 @@ export default function Settings() {
         <div className="settings-list">
           <SectionLabel>{t('settings.sectionAccount')}</SectionLabel>
           <InfoTile icon="📧" title={t('settings.email')} value={usage?.email ?? '—'} />
+          <ActionTile icon="🔗" title={t('settings.shareOllie')} onClick={handleShare} />
           <ActionTile icon="🚪" title={t('settings.logOut')} onClick={() => setConfirmAction('logout')} />
           <ActionTile
             icon="⬇️"
