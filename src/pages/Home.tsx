@@ -36,9 +36,20 @@ export default function Home() {
     return t('home.greetingEvening');
   }
 
+  // Priority order (see home_screen.dart's identical comment): a
+  // live line Ollie actually generated today (/journey/'s
+  // home_highlight -- the same text already sent as the morning
+  // push notification, just also saved this time), then an active
+  // goal, then the generic fallback -- never inventing either.
+  const homeHighlight = journey?.home_highlight?.trim();
   const activeGoals = journey?.active_goals ?? [];
-  const hasContext = activeGoals.length > 0 && !!activeGoals[0]?.title?.trim();
-  const headline = hasContext ? t('home.headlineWithGoal', { title: activeGoals[0].title }) : t('home.headlineDefault');
+  const hasGoalContext = activeGoals.length > 0 && !!activeGoals[0]?.title?.trim();
+  const hasContext = !!homeHighlight || hasGoalContext;
+  const headline = homeHighlight
+    ? homeHighlight
+    : hasGoalContext
+      ? t('home.headlineWithGoal', { title: activeGoals[0].title })
+      : t('home.headlineDefault');
 
   const recentCount = (journey?.highlights.length ?? 0) + (journey?.completed_goals.length ?? 0);
   const stageEmoji = journey?.stage_emoji ?? '🌱';
@@ -123,13 +134,6 @@ export default function Home() {
           </button>
         ))}
       </div>
-
-      <button className="btn-pill home-start-btn" onClick={() => openChat()}>
-        {t('home.startChatting')}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
     </div>
   );
 }
