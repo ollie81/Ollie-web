@@ -403,6 +403,7 @@ export interface JourneyInfo {
   completed_goals: JourneyGoal[];
   highlights: JourneyHighlight[];
   is_premium: boolean;
+  home_highlight: string | null;
 }
 
 export const getJourney = () => authRequest<JourneyInfo>('GET', '/journey/');
