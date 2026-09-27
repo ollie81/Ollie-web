@@ -10,6 +10,7 @@
     "retry": "Retry",
     "loading": "Loading…",
     "goPremium": "Go premium",
+    "signUp": "Sign up",
     "back": "Back"
   },
   "auth": {
@@ -63,6 +64,7 @@
     "speakingTapToStop": "🔊 Speaking… · tap to stop",
     "retrySend": "Couldn't send · Retry",
     "outOfMessages": "You're out of free messages for today.",
+    "guestOutOfMessages": "Sign up so Ollie remembers you tomorrow.",
     "inputPlaceholder": "Message Ollie…",
     "recordingPlaceholder": "Recording…",
     "moodDefault": "hey there 😊",
