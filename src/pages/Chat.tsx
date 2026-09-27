@@ -9,6 +9,7 @@ import {
   getHistory,
   getModeStarter,
   getUsage,
+  GUEST_MESSAGE_LIMIT_DETAIL,
   sendMessage,
   VoicePremiumRequiredError,
 } from '../lib/api';
@@ -57,6 +58,7 @@ export default function Chat() {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [streak, setStreak] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
+  const [guestLimitReached, setGuestLimitReached] = useState(false);
   const [header, setHeader] = useState(t('chat.moodDefault'));
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -151,7 +153,9 @@ export default function Chat() {
       // same as before. See playReply's comment.
     } catch (err) {
       const message = err instanceof Error ? err.message : t('errors.somethingWrong');
-      if (message.includes('Daily limit reached')) {
+      if (message.includes(GUEST_MESSAGE_LIMIT_DETAIL)) {
+        setGuestLimitReached(true);
+      } else if (message.includes('Daily limit reached')) {
         setLimitReached(true);
       } else {
         setMessages((m) => m.map((msg) => (msg.clientId === userMsg.clientId ? { ...msg, failed: true } : msg)));
@@ -167,6 +171,7 @@ export default function Chat() {
     if (!text || isTyping) return;
     setInput('');
     setLimitReached(false);
+    setGuestLimitReached(false);
     setHeader(emotionalHeaderFor(text));
     const userMsg: Message = { clientId: uid(), id: null, text, isOllie: false };
     setMessages((m) => [...m, userMsg]);
@@ -241,6 +246,7 @@ export default function Chat() {
     if (blob.size === 0) return;
 
     setLimitReached(false);
+    setGuestLimitReached(false);
     setVoiceNotice(null);
     setIsTyping(true);
     try {
@@ -321,6 +327,15 @@ export default function Chat() {
           </div>
         )}
       </div>
+
+      {guestLimitReached && (
+        <div className="limit-banner">
+          <span>{t('chat.guestOutOfMessages')}</span>
+          <Link to="/auth" className="btn-pill limit-banner__cta">
+            {t('common.signUp')}
+          </Link>
+        </div>
+      )}
 
       {limitReached && (
         <div className="limit-banner">

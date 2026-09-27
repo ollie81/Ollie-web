@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import i18n from 'i18next';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AnimatedBackground from './components/AnimatedBackground';
-import { isLoggedIn } from './lib/api';
+import OllieOrb from './components/OllieOrb';
+import { guestLogin, isLoggedIn } from './lib/api';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
@@ -15,8 +16,34 @@ import Terms from './pages/Terms';
 import Premium from './pages/Premium';
 import PremiumSuccess from './pages/PremiumSuccess';
 
+// No session at all used to mean straight to the signup wall (see
+// guestLogin's own comment for why that was costing real visitors).
+// Now it silently starts a guest session instead -- chatting, and
+// everything else behind this gate, never waits on a signup form.
+// Only a genuine backend failure (not just "not logged in yet")
+// falls through to /auth.
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  if (!isLoggedIn()) return <Navigate to="/auth" replace />;
+  const [ready, setReady] = useState(isLoggedIn());
+  const [guestFailed, setGuestFailed] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      setReady(true);
+      return;
+    }
+    guestLogin()
+      .then(() => setReady(true))
+      .catch(() => setGuestFailed(true));
+  }, []);
+
+  if (guestFailed) return <Navigate to="/auth" replace />;
+  if (!ready) {
+    return (
+      <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <OllieOrb size={56} breathing />
+      </div>
+    );
+  }
   return <>{children}</>;
 }
 

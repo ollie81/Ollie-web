@@ -18,11 +18,11 @@ export default function Landing() {
     <div className="landing-scroll">
       <div className="landing-wrap">
         <nav className="landing-nav">
-          <Link className="landing-wordmark" to="/auth">
+          <Link className="landing-wordmark" to="/chat">
             <OllieOrb size={30} />
             Ollie
           </Link>
-          <Link className="btn-pill btn-pill--ghost landing-nav-cta" to="/auth">
+          <Link className="btn-pill btn-pill--ghost landing-nav-cta" to="/chat">
             Try it free
           </Link>
         </nav>
@@ -43,7 +43,7 @@ export default function Landing() {
             not a script you re-explain your life to every time.
           </p>
           <div className="landing-hero-cta">
-            <Link className="btn-pill landing-cta-btn" to="/auth">
+            <Link className="btn-pill landing-cta-btn" to="/chat">
               Say hello to Ollie →
             </Link>
             <span className="landing-fine">Free to start · no app store · no card</span>
@@ -300,7 +300,7 @@ export default function Landing() {
               to a chatbot with no memory.
             </h2>
             <p>Say hi once. Ollie takes it from there.</p>
-            <Link className="btn-pill landing-cta-btn landing-cta-btn--big" to="/auth">
+            <Link className="btn-pill landing-cta-btn landing-cta-btn--big" to="/chat">
               Try Ollie free →
             </Link>
           </div>

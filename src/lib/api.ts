@@ -23,6 +23,8 @@ const REQUEST_TIMEOUT_MS = 15_000;
 
 const ACCESS_TOKEN_KEY = 'ollie_access_token';
 const REFRESH_TOKEN_KEY = 'ollie_refresh_token';
+const GUEST_ID_KEY = 'ollie_guest_id';
+const IS_GUEST_KEY = 'ollie_is_guest';
 
 export function getAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -40,6 +42,56 @@ function saveTokens(accessToken: string, refreshToken: string) {
 export function clearTokens() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+// ---- guest mode -- see auth.py's /auth/guest. A guest session is a
+// real, fully-functional account (same tokens, same isLoggedIn()
+// check below) capped much lower than a real one -- see chat.py's
+// GUEST_MESSAGE_LIMIT_DETAIL, matched in Chat.tsx. ----
+
+// Read (never silently created) by Auth.tsx when signing up, so a
+// guest's existing row gets upgraded in place instead of a second,
+// disconnected account being created alongside it.
+export function getGuestId(): string | null {
+  return localStorage.getItem(GUEST_ID_KEY);
+}
+
+// Created (if one doesn't already exist) the first time a guest
+// session actually starts -- see guestLogin below.
+function ensureGuestId(): string {
+  const existing = getGuestId();
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  localStorage.setItem(GUEST_ID_KEY, id);
+  return id;
+}
+
+export function isGuest(): boolean {
+  return localStorage.getItem(IS_GUEST_KEY) === 'true';
+}
+
+function clearGuestState() {
+  localStorage.removeItem(GUEST_ID_KEY);
+  localStorage.removeItem(IS_GUEST_KEY);
+}
+
+export interface GuestLoginResponse {
+  success: boolean;
+  access_token: string;
+  refresh_token: string;
+}
+
+// Starts (or resumes, if this browser already has a guest id) a
+// guest session -- called by RequireAuth in App.tsx the first time
+// someone reaches a gated route with no session at all, so chatting
+// never waits on a signup form.
+export async function guestLogin(): Promise<GuestLoginResponse> {
+  const data = await publicRequest<GuestLoginResponse>('POST', '/auth/guest', {
+    guest_id: ensureGuestId(),
+  });
+  saveTokens(data.access_token, data.refresh_token);
+  localStorage.setItem(IS_GUEST_KEY, 'true');
+  return data;
 }
 
 // Reads the access token's own "sub" claim rather than adding a
@@ -198,13 +250,22 @@ export interface GoogleLoginResponse {
   username?: string;
 }
 
-export async function googleLogin(idToken: string, referredBy?: string | null): Promise<GoogleLoginResponse> {
+export async function googleLogin(
+  idToken: string,
+  referredBy?: string | null,
+  guestId?: string | null,
+): Promise<GoogleLoginResponse> {
   const data = await publicRequest<GoogleLoginResponse>('POST', '/auth/google', {
     id_token: idToken,
     ...(referredBy ? { referred_by: referredBy } : {}),
+    ...(guestId ? { guest_id: guestId } : {}),
   });
   if (data.access_token && data.refresh_token) {
     saveTokens(data.access_token, data.refresh_token);
+    // Whatever guest session existed is now a real account (the
+    // backend upgraded that same row in place) -- nothing left to
+    // resume as a guest.
+    clearGuestState();
   }
   return data;
 }
@@ -233,6 +294,9 @@ export const emailResetPassword = (email: string, otp: string, newPassword: stri
 
 function saveAndReturn<T extends { access_token: string; refresh_token: string }>(data: T): T {
   saveTokens(data.access_token, data.refresh_token);
+  // Any successful real login/signup, whatever the method, means
+  // there's no guest session left worth resuming.
+  clearGuestState();
   return data;
 }
 
@@ -247,10 +311,19 @@ export async function logout() {
     // which is what actually ends the session on this device.
   } finally {
     clearTokens();
+    // A guest who logs out gets a genuinely fresh session next time,
+    // not a resumed one sitting at whatever cap usage it had before.
+    clearGuestState();
   }
 }
 
 // ---- chat ----
+
+// Must match chat.py's GUEST_MESSAGE_LIMIT_DETAIL exactly -- the
+// /chat route's 429 detail when a guest hits their one-time cap,
+// distinct from the free-tier "Daily limit reached" so Chat.tsx can
+// show "sign up" copy instead of "come back tomorrow" copy.
+export const GUEST_MESSAGE_LIMIT_DETAIL = 'Sign up so Ollie remembers you tomorrow';
 
 export interface ChatMessageRow {
   id: string;

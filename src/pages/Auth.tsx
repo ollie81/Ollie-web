@@ -9,6 +9,7 @@ import {
   emailRequestSignupOtp,
   emailResetPassword,
   emailSignup,
+  getGuestId,
   googleLogin,
 } from '../lib/api';
 import './Auth.css';
@@ -93,7 +94,11 @@ export default function Auth() {
     setError(null);
     setLoading(true);
     try {
-      const result = await googleLogin(response.credential, referredBy);
+      // If this browser was already chatting as a guest, this
+      // upgrades that same account in place (same chat history,
+      // same id) instead of creating a second, disconnected one --
+      // see auth.py's _resolve_guest_upgrade.
+      const result = await googleLogin(response.credential, referredBy, getGuestId());
       if (result.access_token) {
         navigate('/home');
       } else {
