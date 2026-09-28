@@ -25,6 +25,11 @@ interface Message {
 
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
+// Show the "running low" warning once this many guest messages (or
+// fewer) are left, ahead of the hard stop at 0 -- gives a heads-up
+// instead of only ever enforcing the cap after the fact.
+const GUEST_LOW_MESSAGES_THRESHOLD = 3;
+
 function rowToMessage(row: ChatMessageRow): Message {
   return { clientId: row.id ?? uid(), id: row.id, text: row.message, isOllie: row.sender === 'ollie' };
 }
@@ -59,6 +64,11 @@ export default function Chat() {
   const [streak, setStreak] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [guestLimitReached, setGuestLimitReached] = useState(false);
+  // Set from every successful guest reply's guest_messages_remaining
+  // (null once signed in, or before the first reply). A warning
+  // shows once this gets low, ahead of the hard stop at 0 -- see
+  // GUEST_LOW_MESSAGES_THRESHOLD below.
+  const [guestMessagesRemaining, setGuestMessagesRemaining] = useState<number | null>(null);
   const [header, setHeader] = useState(t('chat.moodDefault'));
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -149,6 +159,7 @@ export default function Chat() {
       setMessages((m) => [...m, ollieMsg]);
       setHeader(emotionalHeaderFor(response.reply));
       if (typeof response.streak === 'number') setStreak(response.streak);
+      setGuestMessagesRemaining(typeof response.guest_messages_remaining === 'number' ? response.guest_messages_remaining : null);
       // No auto-voice here -- typed messages get a text reply back,
       // same as before. See playReply's comment.
     } catch (err) {
@@ -327,6 +338,15 @@ export default function Chat() {
           </div>
         )}
       </div>
+
+      {!guestLimitReached && guestMessagesRemaining !== null && guestMessagesRemaining <= GUEST_LOW_MESSAGES_THRESHOLD && (
+        <div className="limit-banner">
+          <span>{t('chat.guestMessagesRemaining', { count: guestMessagesRemaining })}</span>
+          <Link to="/auth" className="btn-pill limit-banner__cta">
+            {t('common.signUp')}
+          </Link>
+        </div>
+      )}
 
       {guestLimitReached && (
         <div className="limit-banner">
