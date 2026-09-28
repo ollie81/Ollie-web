@@ -342,6 +342,11 @@ export interface ChatReply {
   // unrelated response) -- matching it exactly here, since reading
   // the wrong key silently means the badge just never updates.
   streak?: number;
+  // Only present for a guest sender (see chat.py) -- how many guest
+  // messages are left after this one, so Chat.tsx can warn before
+  // the cap hits instead of only enforcing it at zero. 0 is a real
+  // value here, not "absent" -- check with `typeof ... === 'number'`.
+  guest_messages_remaining?: number;
 }
 
 export const sendMessage = (message: string, mode?: string | null, replyToId?: string | null) =>

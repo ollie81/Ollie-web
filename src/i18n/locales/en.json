@@ -65,6 +65,8 @@
     "retrySend": "Couldn't send · Retry",
     "outOfMessages": "You're out of free messages for today.",
     "guestOutOfMessages": "Sign up so Ollie remembers you tomorrow.",
+    "guestMessagesRemaining_one": "{{count}} message left — sign up so Ollie remembers you",
+    "guestMessagesRemaining_other": "{{count}} messages left — sign up so Ollie remembers you",
     "inputPlaceholder": "Message Ollie…",
     "recordingPlaceholder": "Recording…",
     "moodDefault": "hey there 😊",
