@@ -241,7 +241,9 @@ export default function Settings() {
     <div className="page-shell settings-page">
       <header className="settings-header">
         <button className="settings-back" onClick={() => navigate('/home')} aria-label={t('common.back')}>
-          ←
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         <h1>{t('settings.title')}</h1>
       </header>

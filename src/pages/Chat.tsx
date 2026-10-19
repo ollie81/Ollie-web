@@ -285,7 +285,9 @@ export default function Chat() {
     <div className="page-shell chat-page">
       <header className="chat-header">
         <button className="settings-back" onClick={() => navigate('/home')} aria-label={t('common.back')}>
-          ←
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         <OllieOrb size={40} breathing />
         <div className="chat-header__titles">

@@ -18,23 +18,26 @@
   font-weight: 700;
 }
 
+/* Matches the native app's back button exactly (chat_screen.dart's
+   IconButton(Icons.arrow_back_ios_rounded)) -- no circle, no fill,
+   just the glyph. A filled badge here looked out of place next to
+   the Android app's plain icon. Still a 44px tap target even though
+   nothing but the chevron is visible. */
 .settings-back {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--surface-strong);
-  border: 1px solid var(--hairline);
-  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .settings-back:active {
-  transform: scale(0.92);
-  background: var(--surface);
+  opacity: 0.55;
 }
 
 .settings-loading {
