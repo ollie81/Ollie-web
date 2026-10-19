@@ -300,13 +300,16 @@ export default function Chat() {
         )}
       </header>
 
-      <div className="emotional-pill">{header}</div>
+      <div className="emotional-pill" key={header}>{header}</div>
 
       <div className="chat-messages" ref={scrollRef}>
         {loadingHistory ? (
           <div className="chat-empty">{t('chat.loadingConversation')}</div>
         ) : messages.length === 0 ? (
-          <div className="chat-empty">{t('chat.sayHi')}</div>
+          <div className="chat-empty">
+            <OllieOrb size={64} breathing />
+            <span>{t('chat.sayHi')}</span>
+          </div>
         ) : (
           messages.map((msg) => (
             <div key={msg.clientId} className={`bubble-row${msg.isOllie ? '' : ' bubble-row--user'}`}>

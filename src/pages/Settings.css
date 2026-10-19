@@ -19,16 +19,22 @@
 }
 
 .settings-back {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--surface-strong);
   border: 1px solid var(--hairline);
-  font-size: 18px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.settings-back:active {
+  transform: scale(0.92);
+  background: var(--surface);
 }
 
 .settings-loading {

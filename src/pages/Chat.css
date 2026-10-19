@@ -9,6 +9,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
+  border-bottom: 1px solid var(--hairline);
 }
 
 .chat-header__titles {
@@ -51,6 +52,16 @@
   border: 1px solid rgba(255, 140, 107, 0.3);
   font-size: 14px;
   font-weight: 500;
+  animation: ollie-pill-fade 0.3s ease;
+}
+
+@keyframes ollie-pill-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .chat-messages {
@@ -66,6 +77,10 @@
 
 .chat-empty {
   margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   color: var(--text-tertiary);
   font-size: 15px;
 }
@@ -75,6 +90,18 @@
   align-items: flex-end;
   gap: 8px;
   justify-content: flex-start;
+  animation: ollie-bubble-row-in 0.25s ease-out;
+}
+
+@keyframes ollie-bubble-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bubble-row--user {
