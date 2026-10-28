@@ -2,7 +2,11 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 10px 2px rgba(255, 140, 107, 0.5);
+  /* Matches the Android app's reduced orb glow. Shared by the header
+     avatar, the empty-state orb, and every per-message avatar, so
+     this one value was repeating at full strength on every Ollie
+     message in a conversation, not just once in the header. */
+  box-shadow: 0 0 8px 1px rgba(255, 140, 107, 0.35);
   color: #fff;
   font-weight: 700;
   display: flex;
