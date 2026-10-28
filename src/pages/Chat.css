@@ -134,7 +134,10 @@
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #fff;
   border-bottom-right-radius: var(--radius-bubble-tail);
-  box-shadow: 0 3px 8px rgba(255, 140, 107, 0.3);
+  /* Matches the Android app's reduced bubble shadow -- this glow
+     repeats on every sent message, so it compounds fast across a
+     real conversation if left at full strength. */
+  box-shadow: 0 2px 6px rgba(255, 140, 107, 0.18);
 }
 
 .bubble-retry {
