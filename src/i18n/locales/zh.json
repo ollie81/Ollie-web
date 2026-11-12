@@ -1,7 +1,8 @@
 {
   "errors": {
     "googleSignInFailed": "Google 登录失败,请重试。",
-    "somethingWrong": "出错了,请重试。"
+    "somethingWrong": "出错了,请重试。",
+    "signupIncomplete": "注册未能完成,请重试。"
   },
   "common": {
     "cancel": "取消",
@@ -36,7 +37,31 @@
     "submitResetPassword": "重置密码",
     "codeSentTo": "我们已将验证码发送至 {{email}}",
     "resetCodeSentTo": "我们已将重置验证码发送至 {{email}}",
-    "passwordResetDone": "密码已重置 — 现在可以登录了。"
+    "passwordResetDone": "密码已重置 — 现在可以登录了。",
+    "subtitleOneMoreThing": "还差一步",
+    "continue": "继续",
+    "dob": {
+      "intro": "Ollie 需要你的出生日期来完成账户设置。",
+      "legend": "出生日期",
+      "hint": "请用数字填写。例如:27 3 2007",
+      "day": "日",
+      "month": "月",
+      "year": "年",
+      "readBack": "即 {{date}}",
+      "back": "使用其他 Google 账户",
+      "sessionExpired": "Google 登录已超时,请重新使用 Google 继续。",
+      "errors": {
+        "required": "请输入你的出生日期。",
+        "incomplete": "请填写日、月和年。",
+        "dayRange": "日必须是 1 到 31 之间的数字。",
+        "monthRange": "月必须是 1 到 12 之间的数字。",
+        "yearFormat": "年份必须是 4 位数字,例如 2007。",
+        "notRealDate": "{{year}}年{{month}}只有 {{days}} 天,请检查日期。",
+        "future": "出生日期不能是未来的日期。",
+        "tooOld": "请检查年份。",
+        "tooYoung": "你必须年满 {{minAge}} 岁才能使用 Ollie。"
+      }
+    }
   },
   "home": {
     "greetingMorning": "早上好",

@@ -1,7 +1,8 @@
 {
   "errors": {
     "googleSignInFailed": "Kwinjira na Google ntibyakunze. Ongera ugerageze.",
-    "somethingWrong": "Hari ikitagenze neza. Ongera ugerageze."
+    "somethingWrong": "Hari ikitagenze neza. Ongera ugerageze.",
+    "signupIncomplete": "Ntibyashobotse kurangiza kwiyandikisha. Ongera ugerageze."
   },
   "common": {
     "cancel": "Kureka",
@@ -36,7 +37,31 @@
     "submitResetPassword": "Hindura ijambo ry'ibanga",
     "codeSentTo": "Twohereje kode kuri {{email}}",
     "resetCodeSentTo": "Twohereje kode yo guhindura kuri {{email}}",
-    "passwordResetDone": "Ijambo ry'ibanga ryahinduwe — ushobora kwinjira ubu."
+    "passwordResetDone": "Ijambo ry'ibanga ryahinduwe — ushobora kwinjira ubu.",
+    "subtitleOneMoreThing": "Hasigaye ikintu kimwe",
+    "continue": "Komeza",
+    "dob": {
+      "intro": "Ollie akeneye itariki y'amavuko yawe kugira ngo arangize gushyiraho konti yawe.",
+      "legend": "Itariki y'amavuko",
+      "hint": "Yandika imibare. Urugero: 27 3 2007",
+      "day": "Umunsi",
+      "month": "Ukwezi",
+      "year": "Umwaka",
+      "readBack": "Ni {{date}}",
+      "back": "Koresha indi konti ya Google",
+      "sessionExpired": "Igihe cyo kwinjira na Google cyarangiye. Ongera ukomeze na Google.",
+      "errors": {
+        "required": "Andika itariki y'amavuko yawe.",
+        "incomplete": "Andika umunsi, ukwezi n'umwaka.",
+        "dayRange": "Umunsi ugomba kuba umubare uri hagati ya 1 na 31.",
+        "monthRange": "Ukwezi kugomba kuba umubare uri hagati ya 1 na 12.",
+        "yearFormat": "Umwaka ugomba kugira imibare 4, urugero 2007.",
+        "notRealDate": "Muri {{month}} {{year}} hari iminsi {{days}}. Reba neza umunsi.",
+        "future": "Itariki y'amavuko ntishobora kuba mu gihe kizaza.",
+        "tooOld": "Reba neza umwaka.",
+        "tooYoung": "Ugomba kuba ufite nibura imyaka {{minAge}} kugira ngo ukoreshe Ollie."
+      }
+    }
   },
   "home": {
     "greetingMorning": "Mwaramutse",

@@ -1,7 +1,8 @@
 {
   "errors": {
     "googleSignInFailed": "Google sign-in failed. Try again.",
-    "somethingWrong": "Something went wrong. Try again."
+    "somethingWrong": "Something went wrong. Try again.",
+    "signupIncomplete": "Couldn't finish signing up. Try again."
   },
   "common": {
     "cancel": "Cancel",
@@ -37,7 +38,31 @@
     "submitResetPassword": "Reset password",
     "codeSentTo": "We sent a code to {{email}}",
     "resetCodeSentTo": "We sent a reset code to {{email}}",
-    "passwordResetDone": "Password reset — you can log in now."
+    "passwordResetDone": "Password reset — you can log in now.",
+    "subtitleOneMoreThing": "One more thing",
+    "continue": "Continue",
+    "dob": {
+      "intro": "Ollie needs your date of birth to finish setting up your account.",
+      "legend": "Date of birth",
+      "hint": "Type it as numbers. For example: 27 3 2007",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "readBack": "That's {{date}}",
+      "back": "Use a different Google account",
+      "sessionExpired": "Your Google sign-in timed out. Please continue with Google again.",
+      "errors": {
+        "required": "Enter your date of birth.",
+        "incomplete": "Enter the day, month and year.",
+        "dayRange": "Day must be a number from 1 to 31.",
+        "monthRange": "Month must be a number from 1 to 12.",
+        "yearFormat": "Year must have 4 digits, for example 2007.",
+        "notRealDate": "{{month}} {{year}} has {{days}} days. Please check the day.",
+        "future": "Date of birth can't be in the future.",
+        "tooOld": "Please check the year.",
+        "tooYoung": "You must be at least {{minAge}} years old to use Ollie."
+      }
+    }
   },
   "home": {
     "greetingMorning": "Good morning",

@@ -1,0 +1,92 @@
+.dob {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.dob__legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dob__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dob__hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Year gets the extra width for its four digits. Fractions, not
+   fixed widths, so three boxes still fit a 320px-wide phone. */
+.dob__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 10px;
+}
+
+.dob__part {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dob__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Selectors are doubled up (.field.dob__input) on purpose: the
+   global .field / .field:focus rules in theme.css load after this
+   file, so a single class would lose to them on a tie.
+   18px keeps iOS Safari from zooming the page when a box is
+   focused (it zooms anything under 16px). */
+.field.dob__input {
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.field.dob__input--invalid,
+.field.dob__input--invalid:focus {
+  border-color: var(--danger);
+  background: rgba(229, 57, 53, 0.1);
+}
+
+/* The read-back and the error share one slot, so the layout
+   doesn't jump and there's no blank line above an error. */
+.dob__readback,
+.dob__error {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+}
+
+.dob__readback {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.dob__error {
+  color: #ffb4b1;
+  font-weight: 500;
+}
+
+.auth-dob-intro {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+}

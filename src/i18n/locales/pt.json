@@ -1,7 +1,8 @@
 {
   "errors": {
     "googleSignInFailed": "O login com Google falhou. Tente novamente.",
-    "somethingWrong": "Algo deu errado. Tente novamente."
+    "somethingWrong": "Algo deu errado. Tente novamente.",
+    "signupIncomplete": "Não foi possível concluir o cadastro. Tente novamente."
   },
   "common": {
     "cancel": "Cancelar",
@@ -36,7 +37,31 @@
     "submitResetPassword": "Redefinir senha",
     "codeSentTo": "Enviamos um código para {{email}}",
     "resetCodeSentTo": "Enviamos um código de redefinição para {{email}}",
-    "passwordResetDone": "Senha redefinida — você já pode entrar."
+    "passwordResetDone": "Senha redefinida — você já pode entrar.",
+    "subtitleOneMoreThing": "Só mais uma coisa",
+    "continue": "Continuar",
+    "dob": {
+      "intro": "O Ollie precisa da sua data de nascimento para terminar de criar sua conta.",
+      "legend": "Data de nascimento",
+      "hint": "Digite em números. Por exemplo: 27 3 2007",
+      "day": "Dia",
+      "month": "Mês",
+      "year": "Ano",
+      "readBack": "Ou seja, {{date}}",
+      "back": "Usar outra conta do Google",
+      "sessionExpired": "Seu login com o Google expirou. Continue com o Google novamente.",
+      "errors": {
+        "required": "Informe sua data de nascimento.",
+        "incomplete": "Informe o dia, o mês e o ano.",
+        "dayRange": "O dia deve ser um número de 1 a 31.",
+        "monthRange": "O mês deve ser um número de 1 a 12.",
+        "yearFormat": "O ano deve ter 4 dígitos, por exemplo 2007.",
+        "notRealDate": "Em {{month}} de {{year}} há {{days}} dias. Confira o dia.",
+        "future": "A data de nascimento não pode estar no futuro.",
+        "tooOld": "Confira o ano.",
+        "tooYoung": "Você precisa ter pelo menos {{minAge}} anos para usar o Ollie."
+      }
+    }
   },
   "home": {
     "greetingMorning": "Bom dia",

@@ -115,7 +115,17 @@ export function isLoggedIn(): boolean {
   return !!getAccessToken();
 }
 
-class ApiError extends Error {}
+export class ApiError extends Error {
+  // HTTP status when the server answered (0 for network failures),
+  // so callers can tell "your Google sign-in expired" (401) apart
+  // from "fix this field" (400).
+  status: number;
+
+  constructor(message: string, status = 0) {
+    super(message);
+    this.status = status;
+  }
+}
 
 async function timedFetch(path: string, init: RequestInit, timeoutMs = REQUEST_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
@@ -156,7 +166,7 @@ export async function publicRequest<T>(
   });
 
   if (!response.ok) {
-    throw new ApiError(await readErrorDetail(response, 'Something went wrong. Try again.'));
+    throw new ApiError(await readErrorDetail(response, 'Something went wrong. Try again.'), response.status);
   }
   return response.json();
 }
@@ -248,17 +258,23 @@ export interface GoogleLoginResponse {
   refresh_token?: string;
   is_new_user?: boolean;
   username?: string;
+  // A brand-new Google account: nothing has been created yet. Ask
+  // for a date of birth, then call googleLogin again with the same
+  // id token plus that date (see auth.py's google_login).
+  needs_date_of_birth?: boolean;
 }
 
 export async function googleLogin(
   idToken: string,
   referredBy?: string | null,
   guestId?: string | null,
+  dateOfBirth?: string,
 ): Promise<GoogleLoginResponse> {
   const data = await publicRequest<GoogleLoginResponse>('POST', '/auth/google', {
     id_token: idToken,
     ...(referredBy ? { referred_by: referredBy } : {}),
     ...(guestId ? { guest_id: guestId } : {}),
+    ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
   });
   if (data.access_token && data.refresh_token) {
     saveTokens(data.access_token, data.refresh_token);

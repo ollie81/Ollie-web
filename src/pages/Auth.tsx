@@ -1,8 +1,10 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import DateOfBirthFields, { DateOfBirthFieldsHandle, describeDobError } from '../components/DateOfBirthFields';
 import OllieOrb from '../components/OllieOrb';
 import {
+  ApiError,
   GOOGLE_CLIENT_ID,
   emailForgotPassword,
   emailLogin,
@@ -12,6 +14,7 @@ import {
   getGuestId,
   googleLogin,
 } from '../lib/api';
+import { DobField, DobInput, EMPTY_DOB, validateDateOfBirth } from '../lib/dateOfBirth';
 import './Auth.css';
 
 type Method = 'google' | 'email';
@@ -19,7 +22,7 @@ type Mode = 'login' | 'signup' | 'forgot';
 type Step = 'form' | 'otp';
 
 export default function Auth() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   // Captured once on the page that loaded the share link -- read
   // directly from the URL rather than state, since it never changes
@@ -57,8 +60,19 @@ export default function Auth() {
   // happens if it never renders at all.
   const [googleButtonReady, setGoogleButtonReady] = useState(false);
 
+  // Set when auth.py's google_login reports a brand-new account that
+  // needs a date of birth before it's created. Google's id token
+  // can't be re-requested without restarting the whole Google flow,
+  // so it's held here and sent again together with the date.
+  const [pendingGoogleIdToken, setPendingGoogleIdToken] = useState<string | null>(null);
+  const [dob, setDob] = useState<DobInput>(EMPTY_DOB);
+  const [dobError, setDobError] = useState<{ message: string; fields: DobField[] } | null>(null);
+  const dobFieldsRef = useRef<DateOfBirthFieldsHandle>(null);
+
   useEffect(() => {
-    if (method !== 'google') return;
+    // The Google button's container only exists while the date step
+    // isn't showing -- re-render the button whenever it comes back.
+    if (method !== 'google' || pendingGoogleIdToken) return;
     let cancelled = false;
     const deadline = Date.now() + 5000;
     setGoogleUnavailable(false);
@@ -88,7 +102,7 @@ export default function Auth() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method]);
+  }, [method, pendingGoogleIdToken]);
 
   async function handleGoogleCredential(response: { credential: string }) {
     setError(null);
@@ -99,13 +113,69 @@ export default function Auth() {
       // same id) instead of creating a second, disconnected one --
       // see auth.py's _resolve_guest_upgrade.
       const result = await googleLogin(response.credential, referredBy, getGuestId());
-      if (result.access_token) {
+      if (result.needs_date_of_birth) {
+        setDob(EMPTY_DOB);
+        setDobError(null);
+        setPendingGoogleIdToken(response.credential);
+      } else if (result.access_token) {
         navigate('/home');
       } else {
         setError(t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.googleSignInFailed', 'Google sign-in failed. Try again.'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleDobChange(next: DobInput) {
+    setDob(next);
+    // Editing is how an error gets fixed -- clear it straight away
+    // instead of leaving a red box on a value that's already changed.
+    if (dobError) setDobError(null);
+  }
+
+  function backToGoogle() {
+    setPendingGoogleIdToken(null);
+    setDob(EMPTY_DOB);
+    setDobError(null);
+  }
+
+  async function handleDobSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!pendingGoogleIdToken) return;
+
+    const checked = validateDateOfBirth(dob);
+    if (!checked.ok) {
+      setDobError({ message: describeDobError(checked, t, i18n.language), fields: checked.fields });
+      dobFieldsRef.current?.focus(checked.fields[0]);
+      return;
+    }
+
+    setError(null);
+    setDobError(null);
+    setLoading(true);
+    try {
+      const result = await googleLogin(pendingGoogleIdToken, referredBy, getGuestId(), checked.isoDate);
+      if (result.access_token) {
+        navigate('/home');
+      } else {
+        setDobError({ message: t('errors.signupIncomplete', "Couldn't finish signing up. Try again."), fields: [] });
+      }
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        // Google's id token only lasts about an hour -- if it ran
+        // out on this step, the only way forward is a fresh Google
+        // sign-in, not another try with the same token.
+        backToGoogle();
+        setError(t('auth.dob.sessionExpired'));
+      } else {
+        setDobError({
+          message: err instanceof Error ? err.message : t('errors.somethingWrong', 'Something went wrong. Try again.'),
+          fields: [],
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -118,11 +188,29 @@ export default function Auth() {
     setInfo(null);
     setOtp('');
     setNewPassword('');
+    setDob(EMPTY_DOB);
+    setDobError(null);
   }
 
   async function handleEmailSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Email signup needs the same date of birth as Google -- checked
+    // before a code is even sent, so nobody waits for an email only
+    // to be told their date was mistyped.
+    let signupDob: string | undefined;
+    if (mode === 'signup') {
+      const checked = validateDateOfBirth(dob);
+      if (!checked.ok) {
+        if (step === 'otp') setStep('form');
+        setDobError({ message: describeDobError(checked, t, i18n.language), fields: checked.fields });
+        setTimeout(() => dobFieldsRef.current?.focus(checked.fields[0]));
+        return;
+      }
+      signupDob = checked.isoDate;
+    }
+
     setLoading(true);
     try {
       if (mode === 'login') {
@@ -137,7 +225,7 @@ export default function Auth() {
           setStep('otp');
           setInfo(t('auth.codeSentTo', { email }));
         } else {
-          await emailSignup(email, password, otp);
+          await emailSignup(email, password, otp, signupDob);
           navigate('/home');
         }
         return;
@@ -165,14 +253,32 @@ export default function Auth() {
       <div className="auth-hero">
         <OllieOrb size={56} breathing />
         <h1>Ollie</h1>
-        <p>{t('auth.subtitleReturning')}</p>
+        <p>{pendingGoogleIdToken ? t('auth.subtitleOneMoreThing') : t('auth.subtitleReturning')}</p>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
       {info && !error && <div className="info-banner">{info}</div>}
 
       {method === 'google' ? (
-        googleUnavailable ? (
+        pendingGoogleIdToken ? (
+          <form className="auth-form" onSubmit={handleDobSubmit} noValidate>
+            <p className="auth-dob-intro">{t('auth.dob.intro')}</p>
+            <DateOfBirthFields
+              ref={dobFieldsRef}
+              value={dob}
+              onChange={handleDobChange}
+              invalidFields={dobError?.fields ?? []}
+              error={dobError?.message}
+              disabled={loading}
+            />
+            <button className="btn-pill auth-submit" type="submit" disabled={loading}>
+              {loading ? t('auth.pleaseWait') : t('auth.continue')}
+            </button>
+            <button type="button" className="btn-text" onClick={backToGoogle} disabled={loading}>
+              {t('auth.dob.back')}
+            </button>
+          </form>
+        ) : googleUnavailable ? (
           <div className="google-button-wrap">
             <p className="auth-dob-hint">{t('auth.googleUnavailable')}</p>
           </div>
@@ -208,6 +314,16 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
+                  />
+                )}
+                {mode === 'signup' && (
+                  <DateOfBirthFields
+                    ref={dobFieldsRef}
+                    value={dob}
+                    onChange={handleDobChange}
+                    invalidFields={dobError?.fields ?? []}
+                    error={dobError?.message}
+                    disabled={loading}
                   />
                 )}
               </>

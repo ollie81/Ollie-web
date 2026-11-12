@@ -1,7 +1,8 @@
 {
   "errors": {
     "googleSignInFailed": "Kuingia kwa Google kumeshindikana. Jaribu tena.",
-    "somethingWrong": "Hitilafu imetokea. Jaribu tena."
+    "somethingWrong": "Hitilafu imetokea. Jaribu tena.",
+    "signupIncomplete": "Imeshindwa kukamilisha usajili. Jaribu tena."
   },
   "common": {
     "cancel": "Ghairi",
@@ -36,7 +37,31 @@
     "submitResetPassword": "Weka upya nenosiri",
     "codeSentTo": "Tumetuma msimbo kwa {{email}}",
     "resetCodeSentTo": "Tumetuma msimbo wa kuweka upya kwa {{email}}",
-    "passwordResetDone": "Nenosiri limewekwa upya — unaweza kuingia sasa."
+    "passwordResetDone": "Nenosiri limewekwa upya — unaweza kuingia sasa.",
+    "subtitleOneMoreThing": "Jambo moja zaidi",
+    "continue": "Endelea",
+    "dob": {
+      "intro": "Ollie anahitaji tarehe yako ya kuzaliwa ili kukamilisha akaunti yako.",
+      "legend": "Tarehe ya kuzaliwa",
+      "hint": "Andika kwa namba. Mfano: 27 3 2007",
+      "day": "Siku",
+      "month": "Mwezi",
+      "year": "Mwaka",
+      "readBack": "Ni {{date}}",
+      "back": "Tumia akaunti nyingine ya Google",
+      "sessionExpired": "Muda wa kuingia kwa Google umeisha. Tafadhali endelea na Google tena.",
+      "errors": {
+        "required": "Weka tarehe yako ya kuzaliwa.",
+        "incomplete": "Weka siku, mwezi na mwaka.",
+        "dayRange": "Siku lazima iwe namba kati ya 1 na 31.",
+        "monthRange": "Mwezi lazima uwe namba kati ya 1 na 12.",
+        "yearFormat": "Mwaka lazima uwe na tarakimu 4, kwa mfano 2007.",
+        "notRealDate": "Mwezi wa {{month}} {{year}} una siku {{days}}. Tafadhali angalia siku.",
+        "future": "Tarehe ya kuzaliwa haiwezi kuwa ya baadaye.",
+        "tooOld": "Tafadhali angalia mwaka.",
+        "tooYoung": "Lazima uwe na umri wa angalau miaka {{minAge}} ili kutumia Ollie."
+      }
+    }
   },
   "home": {
     "greetingMorning": "Habari za asubuhi",
