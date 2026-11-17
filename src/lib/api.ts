@@ -382,6 +382,28 @@ export const getHistory = () =>
     .then((r) => r.messages ?? [])
     .catch(() => [] as ChatMessageRow[]);
 
+// Reporting one of Ollie's replies (POST /chat/report) -- Google
+// Play's AI-generated content policy asks for this in the app, and
+// the website gets the same. The keys must match chat.py's
+// REPORT_REASONS. A saved reply goes by its id, so the server keeps
+// its own copy of the text; one that was never saved (a mode's
+// opening line) goes by its text.
+export const REPORT_REASONS = ['offensive', 'sexual', 'harmful', 'false', 'other'] as const;
+export type ReportReason = (typeof REPORT_REASONS)[number];
+
+export const reportReply = (report: {
+  messageId: string | null;
+  messageText: string;
+  reason: ReportReason;
+  details: string | null;
+}) =>
+  authRequest<{ success: boolean }>('POST', '/chat/report', {
+    ...(report.messageId ? { message_id: report.messageId } : {}),
+    message_text: report.messageText,
+    reason: report.reason,
+    ...(report.details ? { details: report.details } : {}),
+  });
+
 export interface UsageInfo {
   messages_used_today: number;
   daily_limit: number;

@@ -102,7 +102,24 @@
     "voiceHearError": "Impossible d'entendre clairement. Réessaie.",
     "recordVoice": "Enregistrer un message vocal",
     "stopRecording": "Arrêter l'enregistrement",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "report": {
+      "button": "Signaler cette réponse",
+      "reported": "Réponse signalée",
+      "title": "Signaler cette réponse",
+      "intro": "Quel est le problème ? Les signalements sont confidentiels et aident à rendre Ollie plus sûr.",
+      "reasons": {
+        "offensive": "Offensant ou haineux",
+        "sexual": "Sexuel ou inapproprié",
+        "harmful": "Nuisible ou dangereux",
+        "false": "Faux ou trompeur",
+        "other": "Autre chose"
+      },
+      "detailsPlaceholder": "Ajoute des détails (facultatif)",
+      "send": "Envoyer le signalement",
+      "thanks": "Merci de nous l'avoir signalé. Nous allons examiner cette réponse.",
+      "failed": "Impossible d'envoyer le signalement. Vérifie ta connexion et réessaie."
+    }
   },
   "settings": {
     "title": "Paramètres",

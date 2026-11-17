@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import OllieOrb from '../components/OllieOrb';
+import ReportReplyDialog from '../components/ReportReplyDialog';
 import {
   base64ToBlob,
   ChatMessageRow,
@@ -10,6 +11,8 @@ import {
   getModeStarter,
   getUsage,
   GUEST_MESSAGE_LIMIT_DETAIL,
+  reportReply,
+  type ReportReason,
   sendMessage,
   VoicePremiumRequiredError,
 } from '../lib/api';
@@ -98,6 +101,12 @@ export default function Chat() {
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [voiceNotice, setVoiceNotice] = useState<{ text: string; upgrade?: boolean } | null>(null);
+  // Reporting a reply (see sendReport). Reported replies are tracked
+  // by clientId here rather than as a field on `messages`, because
+  // changing `messages` scrolls the chat to the bottom.
+  const [reportingMessage, setReportingMessage] = useState<Message | null>(null);
+  const [reportedIds, setReportedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [reportNotice, setReportNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const recordingExtRef = useRef('webm');
@@ -147,6 +156,31 @@ export default function Chat() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (!reportNotice) return;
+    const timer = window.setTimeout(() => setReportNotice(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [reportNotice]);
+
+  // Google Play's AI-generated content policy asks for a way to report
+  // an AI reply from inside the app; the website does the same. The
+  // flag fills in straight away and goes back if the report fails.
+  async function sendReport(msg: Message, reason: ReportReason, details: string | null) {
+    setReportingMessage(null);
+    setReportedIds((ids) => new Set(ids).add(msg.clientId));
+    try {
+      await reportReply({ messageId: msg.id, messageText: msg.text, reason, details });
+      setReportNotice({ text: t('chat.report.thanks') });
+    } catch {
+      setReportedIds((ids) => {
+        const next = new Set(ids);
+        next.delete(msg.clientId);
+        return next;
+      });
+      setReportNotice({ text: t('chat.report.failed'), error: true });
+    }
+  }
 
   async function requestReply(userMsg: Message) {
     setIsTyping(true);
@@ -329,6 +363,13 @@ export default function Chat() {
                   </button>
                 )}
               </div>
+              {msg.isOllie && (
+                <ReportFlag
+                  reported={reportedIds.has(msg.clientId)}
+                  label={reportedIds.has(msg.clientId) ? t('chat.report.reported') : t('chat.report.button')}
+                  onClick={() => setReportingMessage(msg)}
+                />
+              )}
             </div>
           ))
         )}
@@ -382,6 +423,12 @@ export default function Chat() {
         </div>
       )}
 
+      {reportNotice && (
+        <div className={`chat-notice ${reportNotice.error ? 'error-banner' : 'chat-notice--info'}`} role="status">
+          {reportNotice.text}
+        </div>
+      )}
+
       <form className="chat-input-bar" onSubmit={handleSend}>
         <input
           className="field chat-input"
@@ -419,6 +466,42 @@ export default function Chat() {
           </svg>
         </button>
       </form>
+
+      {reportingMessage && (
+        <ReportReplyDialog
+          onSend={(reason, details) => sendReport(reportingMessage, reason, details)}
+          onCancel={() => setReportingMessage(null)}
+        />
+      )}
     </div>
+  );
+}
+
+// The flag beside each Ollie reply -- same 40px target and quiet 32px
+// circle as the Android app's (lib/widgets/report_reply.dart). Once
+// reported it fills in and can't be pressed again.
+function ReportFlag({ reported, label, onClick }: { reported: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`bubble-flag${reported ? ' bubble-flag--reported' : ''}`}
+      onClick={onClick}
+      disabled={reported}
+      aria-label={label}
+      title={label}
+    >
+      <span className="bubble-flag__dot">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 21V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="M5 4h12l-2.5 4.5L17 13H5"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            fill={reported ? 'currentColor' : 'none'}
+          />
+        </svg>
+      </span>
+    </button>
   );
 }

@@ -1,0 +1,51 @@
+/* The report dialog reuses ConfirmDialog's overlay and card; these
+   are only the parts a yes/no confirmation doesn't have. */
+
+.report-card {
+  max-width: 380px;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+
+.report-reasons {
+  display: flex;
+  flex-direction: column;
+  margin: 14px 0 12px;
+}
+
+.report-reason {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 6px;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.report-reason:hover {
+  background: var(--surface);
+}
+
+.report-reason input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.report-details {
+  display: block;
+  min-height: 0;
+  resize: none;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.report-card .btn-text:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

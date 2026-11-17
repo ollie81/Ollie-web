@@ -102,7 +102,24 @@
     "voiceHearError": "No se entendió bien. Inténtalo de nuevo.",
     "recordVoice": "Grabar un mensaje de voz",
     "stopRecording": "Detener grabación",
-    "send": "Enviar"
+    "send": "Enviar",
+    "report": {
+      "button": "Reportar esta respuesta",
+      "reported": "Respuesta reportada",
+      "title": "Reportar esta respuesta",
+      "intro": "¿Qué tiene de malo? Los reportes son privados y ayudan a que Ollie sea más seguro.",
+      "reasons": {
+        "offensive": "Ofensivo o de odio",
+        "sexual": "Sexual o inapropiado",
+        "harmful": "Dañino o peligroso",
+        "false": "Falso o engañoso",
+        "other": "Otra cosa"
+      },
+      "detailsPlaceholder": "Añade detalles (opcional)",
+      "send": "Enviar reporte",
+      "thanks": "Gracias por avisarnos. Revisaremos esta respuesta.",
+      "failed": "No se pudo enviar el reporte. Revisa tu conexión e inténtalo de nuevo."
+    }
   },
   "settings": {
     "title": "Configuración",

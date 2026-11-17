@@ -106,7 +106,24 @@
     "voiceHearError": "Couldn't hear that. Try again.",
     "recordVoice": "Record a voice message",
     "stopRecording": "Stop recording",
-    "send": "Send"
+    "send": "Send",
+    "report": {
+      "button": "Report this reply",
+      "reported": "Reply reported",
+      "title": "Report this reply",
+      "intro": "What's wrong with it? Reports are private and help make Ollie safer.",
+      "reasons": {
+        "offensive": "Offensive or hateful",
+        "sexual": "Sexual or inappropriate",
+        "harmful": "Harmful or dangerous",
+        "false": "False or misleading",
+        "other": "Something else"
+      },
+      "detailsPlaceholder": "Add details (optional)",
+      "send": "Send report",
+      "thanks": "Thanks for telling us. We'll review this reply.",
+      "failed": "Couldn't send the report. Check your connection and try again."
+    }
   },
   "settings": {
     "title": "Settings",

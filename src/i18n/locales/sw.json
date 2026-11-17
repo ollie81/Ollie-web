@@ -102,7 +102,24 @@
     "voiceHearError": "Imeshindwa kusikia vizuri. Jaribu tena.",
     "recordVoice": "Rekodi ujumbe wa sauti",
     "stopRecording": "Simamisha kurekodi",
-    "send": "Tuma"
+    "send": "Tuma",
+    "report": {
+      "button": "Ripoti jibu hili",
+      "reported": "Jibu limeripotiwa",
+      "title": "Ripoti jibu hili",
+      "intro": "Kuna tatizo gani? Ripoti ni za siri na husaidia kumfanya Ollie kuwa salama zaidi.",
+      "reasons": {
+        "offensive": "Matusi au chuki",
+        "sexual": "Ngono au lisilofaa",
+        "harmful": "Lenye madhara au hatari",
+        "false": "Uongo au upotoshaji",
+        "other": "Kitu kingine"
+      },
+      "detailsPlaceholder": "Ongeza maelezo (si lazima)",
+      "send": "Tuma ripoti",
+      "thanks": "Asante kwa kutuambia. Tutalikagua jibu hili.",
+      "failed": "Imeshindwa kutuma ripoti. Angalia muunganisho wako kisha ujaribu tena."
+    }
   },
   "settings": {
     "title": "Mipangilio",

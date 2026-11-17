@@ -102,7 +102,24 @@
     "voiceHearError": "没听清楚,请重试。",
     "recordVoice": "录制语音消息",
     "stopRecording": "停止录音",
-    "send": "发送"
+    "send": "发送",
+    "report": {
+      "button": "举报这条回复",
+      "reported": "已举报这条回复",
+      "title": "举报这条回复",
+      "intro": "这条回复有什么问题？举报内容保密,有助于让 Ollie 更安全。",
+      "reasons": {
+        "offensive": "冒犯或仇恨",
+        "sexual": "色情或不当",
+        "harmful": "有害或危险",
+        "false": "虚假或误导",
+        "other": "其他问题"
+      },
+      "detailsPlaceholder": "补充说明(可选)",
+      "send": "提交举报",
+      "thanks": "感谢告知,我们会审核这条回复。",
+      "failed": "举报发送失败,请检查网络连接后重试。"
+    }
   },
   "settings": {
     "title": "设置",

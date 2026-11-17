@@ -102,7 +102,24 @@
     "voiceHearError": "Sinumvise neza. Ongera ugerageze.",
     "recordVoice": "Andika ubutumwa bw'ijwi",
     "stopRecording": "Hagarika kwandika",
-    "send": "Ohereza"
+    "send": "Ohereza",
+    "report": {
+      "button": "Menyesha iki gisubizo",
+      "reported": "Iki gisubizo cyamenyeshejwe",
+      "title": "Menyesha iki gisubizo",
+      "intro": "Gifite ikihe kibazo? Ibyo utumenyesha bigirwa ibanga kandi bidufasha gutuma Ollie arushaho kugira umutekano.",
+      "reasons": {
+        "offensive": "Ibitutsi cyangwa urwango",
+        "sexual": "Iby'imibonano mpuzabitsina cyangwa ibidakwiye",
+        "harmful": "Byangiza cyangwa biteje akaga",
+        "false": "Ibinyoma cyangwa ibiyobya",
+        "other": "Ikindi kintu"
+      },
+      "detailsPlaceholder": "Ongeraho ibisobanuro (si ngombwa)",
+      "send": "Ohereza",
+      "thanks": "Murakoze kutubwira. Tuzasuzuma iki gisubizo.",
+      "failed": "Ntibyoherejwe. Reba niba ufite interineti, wongere ugerageze."
+    }
   },
   "settings": {
     "title": "Igenamiterere",
